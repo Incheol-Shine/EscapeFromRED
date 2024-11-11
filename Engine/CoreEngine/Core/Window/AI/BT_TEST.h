@@ -1,7 +1,8 @@
 #pragma once
-#include "Core/Entity/Actor/JActor.h"
+// #include "Core/Entity/Actor/JActor.h"
+#include "Core/Entity/Component/Scene/JSceneComponent.h"
 
-class BT_TEST : public JActor
+class BT_TEST : public JSceneComponent
 {
 public:
     BT_TEST();

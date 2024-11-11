@@ -12,7 +12,7 @@
 #include "Core/Window/Window.h"
 
 // BehaviorTree Test By Incheol
-#include "Core/Window/BT_TEST.h"
+#include "Core/Window/AI/BT_TEST.h"
 
 CBuffer::Light g_LightData = {FVector4(1, 2, -1, 0), FVector4::OneVector};
 
@@ -82,16 +82,16 @@ void Application::Initialize()
 	Ptr<JMeshObject>          swordMesh      = IManager.MeshManager->CreateOrLoad("Game/Mesh/Sphere.jasset");
 	Ptr<JStaticMeshComponent> swordComponent = MakePtr<JStaticMeshComponent>("Sword");
 	Ptr<JActor>               sampleActor    = MakePtr<JActor>("SampleActor");
-	// BT Actor by Incheol
-	Ptr<BT_TEST>			  BTActor		 = MakePtr<BT_TEST>("BT"); 
+	// BT Component by Incheol
+	Ptr<BT_TEST>              BTComponent        = MakePtr<BT_TEST>("AI"); 
 	sampleActor->Initialize();
-	BTActor->Initialize();
+	BTComponent->Initialize();
 	swordComponent->SetMeshObject(swordMesh);
 	swordComponent->AttachToActor(sampleActor);
-	BTActor->AttachToActor(sampleActor);
+	BTComponent->AttachToActor(sampleActor);
 	Actors.push_back(sampleActor);
 
-	sampleActor->SetLocalLocation({10, 0, 0});
+	sampleActor->SetLocalLocation({0, 0, 0});
 }
 
 void Application::Run()

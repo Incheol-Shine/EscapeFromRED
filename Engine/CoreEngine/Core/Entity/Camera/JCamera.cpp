@@ -13,7 +13,7 @@ uint32_t JCamera::s_CameraNum = 0;
  */
 JCamera::JCamera() noexcept
 	: mName(std::format(L"JCam_{}", s_CameraNum++)),
-	  mDefaultEye(0, 5.f, -15.f),
+	  mDefaultEye(0, 0.f, -15.f),
 	  mDefaultLookAt(0, 0, 0),
 	  mEye(mDefaultEye),
 	  mLookAt(0, 0, 0),
