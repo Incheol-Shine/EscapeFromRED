@@ -11,6 +11,9 @@
 #include "Core/Utils/ObjectLoader/FbxFile.h"
 #include "Core/Window/Window.h"
 
+// BehaviorTree Test By Incheol
+#include "Core/Window/BT_TEST.h"
+
 CBuffer::Light g_LightData = {FVector4(1, 2, -1, 0), FVector4::OneVector};
 
 
@@ -79,9 +82,13 @@ void Application::Initialize()
 	Ptr<JMeshObject>          swordMesh      = IManager.MeshManager->CreateOrLoad("Game/Mesh/Sphere.jasset");
 	Ptr<JStaticMeshComponent> swordComponent = MakePtr<JStaticMeshComponent>("Sword");
 	Ptr<JActor>               sampleActor    = MakePtr<JActor>("SampleActor");
+	// BT Actor by Incheol
+	Ptr<BT_TEST>			  BTActor		 = MakePtr<BT_TEST>("BT"); 
 	sampleActor->Initialize();
+	BTActor->Initialize();
 	swordComponent->SetMeshObject(swordMesh);
 	swordComponent->AttachToActor(sampleActor);
+	BTActor->AttachToActor(sampleActor);
 	Actors.push_back(sampleActor);
 
 	sampleActor->SetLocalLocation({10, 0, 0});
@@ -169,7 +176,6 @@ void Application::HandleTick()
 	mFrameCounter = 0;
 	// TODO: Tick
 }
-
 
 void Application::CheckWindowClosure()
 {
