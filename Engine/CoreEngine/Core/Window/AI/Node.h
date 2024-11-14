@@ -14,6 +14,8 @@ class Node
 public:
     virtual ~Node() {};
     virtual NodeStatus tick() = 0;
+    
+    virtual void addChild(Ptr<Node> child) {};
 };
 
 class ActionNode : public Node
@@ -57,22 +59,30 @@ public:
         }
         return NodeStatus::Failure;
     }
-    
+
 private:
     std::vector<Ptr<Node>> children;
+
 };
 
 
 class Sequence : public Node
 {
 public:
-    JText name;
+    JText NodeName;
+
+public:
+    Sequence();
+    Sequence(const JText& name)
+    {
+        NodeName = name;
+    }
     
     void addChild(Ptr<Node> child)
     {
         children.push_back(child);
     }
-
+    
     NodeStatus tick() override
     {
         for (auto& child : children)

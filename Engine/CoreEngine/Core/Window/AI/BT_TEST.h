@@ -15,9 +15,26 @@ public:
     void Tick(float DeltaTime) override;
     void Destroy() override;
 
+    void SetupTree();
+
+public:
+    // Action Function
+    NodeStatus findTarget();
+    NodeStatus moveToTarget();
+    NodeStatus attackTarget();
+
+    NodeStatus StopChase();
+    NodeStatus ChasePlayer();
+
+    // Decorator Function
+    // NodeStatus IsPlayerClose(Ptr<JActor> A, Ptr<JActor> B);
+    NodeStatus IsPlayerClose();
+    NodeStatus Not(NodeStatus state);
+    
 public:
     // Selector root;
     // Sequence sequence;
     BTBuilder builder;
+    Ptr<Node> BTRoot;
     
 };
