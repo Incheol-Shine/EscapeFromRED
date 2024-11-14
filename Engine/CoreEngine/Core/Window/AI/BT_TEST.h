@@ -9,20 +9,16 @@ public:
     BT_TEST();
     BT_TEST(JTextView InName);
     ~BT_TEST() override;
-    
+
     void Initialize() override;
     void BeginPlay() override;
-    void Tick(float DeltaTime) override;
     void Destroy() override;
-
+    
+    void Tick(float DeltaTime) override;
     void SetupTree();
 
 public:
     // Action Function
-    NodeStatus findTarget();
-    NodeStatus moveToTarget();
-    NodeStatus attackTarget();
-
     NodeStatus StopChase();
     NodeStatus ChasePlayer();
 
@@ -30,11 +26,8 @@ public:
     // NodeStatus IsPlayerClose(Ptr<JActor> A, Ptr<JActor> B);
     NodeStatus IsPlayerClose();
     NodeStatus Not(NodeStatus state);
-    
+
 public:
-    // Selector root;
-    // Sequence sequence;
     BTBuilder builder;
     Ptr<Node> BTRoot;
-    
 };

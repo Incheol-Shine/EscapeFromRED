@@ -3,7 +3,7 @@
 #include "Core/Interface/MManagerInterface.h"
 #include "GUI/GUI_Inspector.h"
 #include "Core/Entity/Actor/JActor.h"
-// #include "Core/Window/AI/ActionNode.h"
+#include "Core/Utils/Math/Vector4.h"
 
 BT_TEST::BT_TEST()
 {
@@ -28,47 +28,34 @@ void BT_TEST::BeginPlay()
     JActorComponent::BeginPlay();
 }
 
-void BT_TEST::Tick(float DeltaTime)
-{
-    JActorComponent::Tick(DeltaTime);
-    BTRoot->tick();
-    
-    /*FVector location = GetOwnerActor()->GetRootComponent()->GetLocalLocation();
-    location.z += -0.005f;
-    GetOwnerActor()->GetRootComponent()->SetLocalLocation(location);*/
-}
-
 void BT_TEST::Destroy()
 {
     JActorComponent::Destroy();
 }
 
-NodeStatus BT_TEST::findTarget()
+void BT_TEST::Tick(float DeltaTime)
 {
-    std::cout << "Find target" << std::endl;
-    return NodeStatus::Success;
+    JActorComponent::Tick(DeltaTime);
+    BTRoot->tick();
 }
 
-NodeStatus BT_TEST::moveToTarget()
-{
-    std::cout << "Move to target" << std::endl;
-    return NodeStatus::Success;
-}
-
-NodeStatus BT_TEST::attackTarget()
-{
-    std::cout << "Attack Target" << std::endl;
-    return NodeStatus::Success;
-}
-
+// Action Function
 NodeStatus BT_TEST::StopChase()
 {
+    // FVector location = GetOwnerActor()->GetRootComponent()->GetLocalLocation();
+    // location.z += -0.005f;
+    GetOwnerActor()->GetRootComponent()->SetLocalLocation(JMath::TVector::ZeroVector);
+    
     std::cout << "Stop Chase" << std::endl;
     return NodeStatus::Success;
 }
 
 NodeStatus BT_TEST::ChasePlayer()
 {
+    JMath::TVector location = GetOwnerActor()->GetRootComponent()->GetLocalLocation();
+    location.z += -0.005f;
+    GetOwnerActor()->GetRootComponent()->SetLocalLocation(location);
+    
     std::cout << "Chase Player" << std::endl;
     return NodeStatus::Success;
 }
@@ -88,7 +75,7 @@ NodeStatus BT_TEST::IsPlayerClose()
         std::cout << "Search Player" << std::endl;
         return NodeStatus::Failure;
     }*/
-    return NodeStatus::Success;
+    return NodeStatus::Failure;
 }
 
 NodeStatus BT_TEST::Not(NodeStatus state)
@@ -105,14 +92,14 @@ NodeStatus BT_TEST::Not(NodeStatus state)
 void BT_TEST::SetupTree()
 {
     BTRoot = builder
-        .createRoot("RootSelector")
-            .addSequence("StopSequence")
-                .addActionNode([this]()->NodeStatus{ return IsPlayerClose(); })
-                .addActionNode([this]()->NodeStatus{ return StopChase(); })
-            .endBranch()
-            .addSequence("ChaseSequence")
-                .addActionNode([this]()->NodeStatus{ return Not(IsPlayerClose()); })
-                .addActionNode([this]()->NodeStatus{ return ChasePlayer(); })
-            .endBranch()
-        .build();
+             .createRoot("RootSelector")
+                .addSequence("StopSequence")
+                    .addActionNode([this]()-> NodeStatus { return IsPlayerClose(); })
+                    .addActionNode([this]()-> NodeStatus { return StopChase(); })
+                .endBranch()
+                .addSequence("ChaseSequence")
+                    .addActionNode([this]()-> NodeStatus { return Not(IsPlayerClose()); })
+                    .addActionNode([this]()-> NodeStatus { return ChasePlayer(); })
+                .endBranch()
+             .build();
 }

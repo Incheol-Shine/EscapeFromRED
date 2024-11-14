@@ -5,23 +5,28 @@ enum class NodeStatus
 {
     Success,
     Failure,
-    Running    
+    Running
 };
-
 
 class Node
 {
 public:
-    virtual ~Node() {};
+    virtual ~Node()
+    {
+    };
     virtual NodeStatus tick() = 0;
-    
-    virtual void addChild(Ptr<Node> child) {};
+
+    virtual void addChild(Ptr<Node> child)
+    {
+    };
 };
 
 class ActionNode : public Node
 {
 public:
-    ActionNode(std::function<NodeStatus()> action) : action(action) {};
+    ActionNode(std::function<NodeStatus()> action) : action(action)
+    {
+    };
 
     NodeStatus tick() override
     {
@@ -36,14 +41,15 @@ class Selector : public Node
 {
 public:
     JText NodeName;
-    
+
 public:
     Selector();
+
     Selector(const JText& name)
     {
         NodeName = name;
     }
-    
+
     void addChild(Ptr<Node> child)
     {
         children.push_back(child);
@@ -62,9 +68,7 @@ public:
 
 private:
     std::vector<Ptr<Node>> children;
-
 };
-
 
 class Sequence : public Node
 {
@@ -73,16 +77,17 @@ public:
 
 public:
     Sequence();
+
     Sequence(const JText& name)
     {
         NodeName = name;
     }
-    
+
     void addChild(Ptr<Node> child)
     {
         children.push_back(child);
     }
-    
+
     NodeStatus tick() override
     {
         for (auto& child : children)
@@ -93,7 +98,7 @@ public:
         }
         return NodeStatus::Success;
     }
-    
+
 private:
     std::vector<Ptr<Node>> children;
 };
