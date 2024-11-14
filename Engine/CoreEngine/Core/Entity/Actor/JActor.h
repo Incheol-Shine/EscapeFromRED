@@ -30,6 +30,8 @@ protected:
 
 	WPtr<JActor>             mParentActor;
 	JArray<Ptr<JActor>>      mChildActors;
-	JArray<JActorComponent*> mActorComponents;
+	// Incheol
+public:
+	JArray<Ptr<JActorComponent>> mActorComponents;
 
 };

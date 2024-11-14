@@ -83,14 +83,17 @@ void Application::Initialize()
 	Ptr<JStaticMeshComponent> swordComponent = MakePtr<JStaticMeshComponent>("Sword");
 	Ptr<JActor>               sampleActor    = MakePtr<JActor>("SampleActor");
 	// BT Component by Incheol
-	Ptr<BT_TEST>              BTComponent        = MakePtr<BT_TEST>("AI"); 
+	Ptr<BT_TEST>              BT        = MakePtr<BT_TEST>("AI"); 
 	sampleActor->Initialize();
-	BTComponent->Initialize();
+	// BT->Initialize();
 	swordComponent->SetMeshObject(swordMesh);
 	swordComponent->AttachToActor(sampleActor);
-	BTComponent->AttachToActor(sampleActor);
+	// BT->AttachToActor(sampleActor);
+	BT->SetOwnerActor(sampleActor);
+	sampleActor->mActorComponents.push_back(BT);
 	Actors.push_back(sampleActor);
 
+	BT->SetupTree();
 	sampleActor->SetLocalLocation({0, 0, 0});
 }
 

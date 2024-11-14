@@ -1,45 +1,82 @@
 ﻿#pragma once
-#include <unordered_map>
-#include <vector>
 #include "common_include.h"
 
-enum class ENodeState: uint8_t
+enum class NodeStatus
 {
     Success,
     Failure,
-    running
+    Running    
 };
 
-struct Node : public std::enable_shared_from_this<Node>
+
+class Node
 {
 public:
-    Node();
-    Node(JText InNodeName);
-    Node(JText InNodeName, const std::vector<NodeSPtr>& InChildNodes);
-    virtual ~Node();
+    virtual ~Node() {};
+    virtual NodeStatus tick() = 0;
+};
 
+class ActionNode : public Node
+{
 public:
-    virtual ENodeState Evaluate();
+    ActionNode(std::function<NodeStatus()> action) : action(action) {};
 
+    NodeStatus tick() override
+    {
+        return action();
+    }
+
+private:
+    std::function<NodeStatus()> action;
+};
+
+class Selector : public Node
+{
 public:
-    void SetNodes(const std::vector<NodeSPtr>& InChildNodes);
+    std::string name;
+    
+    void addChild(Ptr<Node> child)
+    {
+        children.push_back(child);
+    }
 
-    void Attach(NodeSPtr InNode);
+    NodeStatus tick() override
+    {
+        for (auto& child : children)
+        {
+            NodeStatus status = child->tick();
+            if (status != NodeStatus::Failure)
+                return status;
+        }
+        return NodeStatus::Failure;
+    }
+    
+private:
+    std::vector<Ptr<Node>> children;
+};
 
-    void SetData(const JText& InName, UObject* Value);
 
-
-    UObject* GetData(const JText& InKey);
-    bool ClearData(const JText& InKey);
-
-    NodeSPtr GetRoot();
-
+class Sequence : public Node
+{
 public:
-    AActor*                             Owner;
-    JText                               NodeName;
-    NodeWPtr                            ParentNode;
-    ENodeState                          NodeState = ENodeState::Failure;
-    std::vector<NodeSPtr>               ChildNodes;
-    std::unordered_map<JText, UObject*> DataContext;
+    std::string name;
+    
+    void addChild(Ptr<Node> child)
+    {
+        children.push_back(child);
+    }
 
+    NodeStatus tick() override
+    {
+        for (auto& child : children)
+        {
+            NodeStatus status = child->tick();
+            if (status != NodeStatus::Success)
+                return status;
+        }
+        return NodeStatus::Success;
+    }
+    
+private:
+    std::vector<Ptr<Node>> children;
 };

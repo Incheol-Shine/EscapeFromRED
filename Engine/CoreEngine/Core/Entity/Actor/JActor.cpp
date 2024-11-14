@@ -37,6 +37,11 @@ void JActor::Tick(float DeltaTime)
 	{
 		mChildObjs[i]->Tick(DeltaTime);
 	}
+	
+	for (int32_t i = 0; i < mActorComponents.size(); ++i)
+	{
+		mActorComponents[i]->Tick(DeltaTime);
+	}
 }
 
 void JActor::Destroy()

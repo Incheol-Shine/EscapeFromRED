@@ -1,8 +1,9 @@
 #pragma once
 // #include "Core/Entity/Actor/JActor.h"
-#include "Core/Entity/Component/Scene/JSceneComponent.h"
+#include "Core/Entity/Component/JActorComponent.h"
+#include "BTBuilder.h"
 
-class BT_TEST : public JSceneComponent
+class BT_TEST : public JActorComponent
 {
 public:
     BT_TEST();
@@ -14,8 +15,9 @@ public:
     void Tick(float DeltaTime) override;
     void Destroy() override;
 
-    void Draw() override;
+    void SetupTree();
 
-    bool Serialize_Implement(std::ofstream& FileStream) override;
-    bool DeSerialize_Implement(std::ifstream& InFileStream) override;
+public:
+    Selector root;
+    Sequence sequence;
 };

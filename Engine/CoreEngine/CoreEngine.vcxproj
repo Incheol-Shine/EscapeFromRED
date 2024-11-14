@@ -169,6 +169,7 @@
     <ClInclude Include="Core\Utils\ObjectLoader\FbxUtils.h" />
     <ClInclude Include="Core\Utils\Timer.h" />
     <ClInclude Include="Core\Utils\Utils.h" />
+    <ClInclude Include="Core\Window\AI\BTBuilder.h" />
     <ClInclude Include="Core\Window\AI\BehaviorTree.h" />
     <ClInclude Include="Core\Window\AI\BT_TEST.h" />
     <ClInclude Include="Core\Window\AI\Node.h" />
@@ -273,6 +274,7 @@
     <ClCompile Include="Core\Utils\Math\Vector2.cpp" />
     <ClCompile Include="Core\Utils\Math\Vector4.cpp" />
     <ClCompile Include="Core\Utils\ObjectLoader\FbxFile.cpp" />
+    <ClCompile Include="Core\Window\AI\BTBuilder.cpp" />
     <ClCompile Include="Core\Window\AI\BehaviorTree.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
