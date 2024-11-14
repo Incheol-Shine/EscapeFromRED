@@ -6,16 +6,28 @@ class JActor;
 class BTBuilder
 {
 public:
-    // Action Node
-    static NodeStatus findTarget();
-    static NodeStatus moveToTarget();
-    static NodeStatus attackTarget();
+    // BTBuilder();
+    // ~BTBuilder();
+    
+    Ptr<Selector> rootNode;
+    
+public:
+    // Root Node
+    void createRoot(const JText& rootName);
+    void tick();
+    void SetupTree();
+    
+    // Action Function
+    NodeStatus findTarget();
+    NodeStatus moveToTarget();
+    NodeStatus attackTarget();
 
-    static NodeStatus StopChase();
-    static NodeStatus ChasePlayer();
+    NodeStatus StopChase();
+    NodeStatus ChasePlayer();
 
-    // Decorator
-    // static NodeStatus IsPlayerClose(Ptr<JActor> A, Ptr<JActor> B);
-    static NodeStatus IsPlayerClose();
-    static NodeStatus IsSuccess();
+    // Decorator Function
+    // NodeStatus IsPlayerClose(Ptr<JActor> A, Ptr<JActor> B);
+    NodeStatus IsPlayerClose();
+    NodeStatus Not(NodeStatus state);
+    
 };

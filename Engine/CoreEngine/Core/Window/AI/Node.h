@@ -33,7 +33,14 @@ private:
 class Selector : public Node
 {
 public:
-    std::string name;
+    JText NodeName;
+    
+public:
+    Selector();
+    Selector(const JText& name)
+    {
+        NodeName = name;
+    }
     
     void addChild(Ptr<Node> child)
     {
@@ -59,7 +66,7 @@ private:
 class Sequence : public Node
 {
 public:
-    std::string name;
+    JText name;
     
     void addChild(Ptr<Node> child)
     {

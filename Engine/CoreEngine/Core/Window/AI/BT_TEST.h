@@ -15,9 +15,9 @@ public:
     void Tick(float DeltaTime) override;
     void Destroy() override;
 
-    void SetupTree();
-
 public:
-    Selector root;
-    Sequence sequence;
+    // Selector root;
+    // Sequence sequence;
+    BTBuilder builder;
+    
 };
