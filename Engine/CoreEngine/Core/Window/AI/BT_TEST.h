@@ -2,6 +2,16 @@
 // #include "Core/Entity/Actor/JActor.h"
 #include "Core/Entity/Component/JActorComponent.h"
 #include "BTBuilder.h"
+#include "Core/Utils/Math/Vector.h"
+
+#include "Core/Utils/Timer.h"
+
+struct BlackBoard
+{
+    float distance;
+    FVector direction;
+    Timer timer;
+};
 
 class BT_TEST : public JActorComponent
 {
@@ -13,21 +23,25 @@ public:
     void Initialize() override;
     void BeginPlay() override;
     void Destroy() override;
-    
+
     void Tick(float DeltaTime) override;
     void SetupTree();
+    void SetupTree2();
+    void BBTick();
 
 public:
     // Action Function
     NodeStatus StopChase();
     NodeStatus ChasePlayer();
-
+    NodeStatus ChasePlayer2();
+    NodeStatus ChasePlayer3();
+    
     // Decorator Function
-    // NodeStatus IsPlayerClose(Ptr<JActor> A, Ptr<JActor> B);
     NodeStatus IsPlayerClose();
     NodeStatus Not(NodeStatus state);
 
 public:
     BTBuilder builder;
     Ptr<Node> BTRoot;
+    BlackBoard BB;
 };

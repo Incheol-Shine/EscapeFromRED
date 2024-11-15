@@ -95,7 +95,7 @@ void Application::Initialize()
     BT->SetOwnerActor(sampleActor);
     sampleActor->mActorComponents.push_back(BT);
     Actors.push_back(sampleActor);
-    BT->SetupTree();
+    BT->SetupTree2();
     sampleActor->SetLocalLocation({0, 0, 0});
 }
 
