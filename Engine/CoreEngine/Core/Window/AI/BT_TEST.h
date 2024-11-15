@@ -11,6 +11,8 @@ struct BlackBoard
     float distance;
     FVector direction;
     Timer timer;
+    UINT randIndex;
+    bool flag = false;
 };
 
 class BT_TEST : public JActorComponent
@@ -32,13 +34,16 @@ public:
 public:
     // Action Function
     NodeStatus StopChase();
+    NodeStatus StopChase2();
     NodeStatus ChasePlayer();
     NodeStatus ChasePlayer2();
     NodeStatus ChasePlayer3();
     
     // Decorator Function
-    NodeStatus IsPlayerClose();
+    NodeStatus IsPlayerClose(UINT N);
     NodeStatus Not(NodeStatus state);
+    NodeStatus RandN(UINT N);
+    NodeStatus IsRandSame(UINT N);
 
 public:
     BTBuilder builder;

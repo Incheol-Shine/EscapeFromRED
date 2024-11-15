@@ -85,18 +85,36 @@ void Application::Initialize()
     Ptr<JMeshObject> swordMesh = IManager.MeshManager->CreateOrLoad("Game/Mesh/Sphere.jasset");
     Ptr<JStaticMeshComponent> swordComponent = MakePtr<JStaticMeshComponent>("Sword");
     Ptr<JActor> sampleActor = MakePtr<JActor>("SampleActor");
+
     // BT Component by Incheol
     Ptr<BT_TEST> BT = MakePtr<BT_TEST>("AI");
     sampleActor->Initialize();
-    // BT->Initialize();
     swordComponent->SetMeshObject(swordMesh);
     swordComponent->AttachToActor(sampleActor);
-    // BT->AttachToActor(sampleActor);
+
     BT->SetOwnerActor(sampleActor);
+    
     sampleActor->mActorComponents.push_back(BT);
     Actors.push_back(sampleActor);
     BT->SetupTree2();
     sampleActor->SetLocalLocation({0, 0, 0});
+
+    Ptr<JMeshObject> sMesh = IManager.MeshManager->CreateOrLoad("Game/Mesh/Sphere.jasset");
+    Ptr<JStaticMeshComponent> sComponent = MakePtr<JStaticMeshComponent>("S");
+    Ptr<JActor> sActor = MakePtr<JActor>("SampleActor");
+
+    // BT Component by Incheol
+    Ptr<BT_TEST> BT2 = MakePtr<BT_TEST>("AI");
+    sActor->Initialize();
+    sComponent->SetMeshObject(swordMesh);
+    sComponent->AttachToActor(sActor);
+
+    BT2->SetOwnerActor(sActor);
+    
+    sActor->mActorComponents.push_back(BT2);
+    Actors.push_back(sActor);
+    BT2->SetupTree2();
+    sActor->SetLocalLocation({10, 0, 10});
 }
 
 void Application::Run()

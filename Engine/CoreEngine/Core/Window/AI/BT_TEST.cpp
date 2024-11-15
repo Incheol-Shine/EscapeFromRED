@@ -4,7 +4,7 @@
 #include "GUI/GUI_Inspector.h"
 #include "Core/Entity/Actor/JActor.h"
 #include "Core/Entity/Camera/MCameraManager.h"
-
+#define MAG 0.01f
 BT_TEST::BT_TEST()
 {
 }
@@ -19,7 +19,7 @@ BT_TEST::~BT_TEST()
 }
 
 void BT_TEST::Initialize()
-{
+{ 
     JActorComponent::Initialize();
 }
 
@@ -62,13 +62,20 @@ NodeStatus BT_TEST::StopChase()
     return NodeStatus::Success;
 }
 
+NodeStatus BT_TEST::StopChase2()
+{
+    BB.flag = false;
+    std::cout << "Stop Chase" << std::endl;
+    return NodeStatus::Success;
+}
+
+
 NodeStatus BT_TEST::ChasePlayer()
 {
     JMath::TVector location = GetOwnerActor()->GetRootComponent()->GetLocalLocation();
-    float mag = 0.1f;
-    location.x += BB.direction.x * mag / BB.distance;
-    location.y += BB.direction.y * mag / BB.distance;
-    location.z += BB.direction.z * mag / BB.distance;
+    location.x += BB.direction.x * MAG / BB.distance;
+    location.y += BB.direction.y * MAG / BB.distance;
+    location.z += BB.direction.z * MAG / BB.distance;
     GetOwnerActor()->GetRootComponent()->SetLocalLocation(location);
     
     std::cout << "Chase Player" << std::endl;
@@ -78,9 +85,8 @@ NodeStatus BT_TEST::ChasePlayer()
 NodeStatus BT_TEST::ChasePlayer2()
 {
     JMath::TVector location = GetOwnerActor()->GetRootComponent()->GetLocalLocation();
-    float mag = 0.1f;
-    location.x += BB.direction.x * mag / BB.distance;
-    location.z += BB.direction.z * mag / BB.distance;
+    location.x += BB.direction.x * MAG / BB.distance;
+    location.z += BB.direction.z * MAG / BB.distance;
     GetOwnerActor()->GetRootComponent()->SetLocalLocation(location);
     
     std::cout << "Chase Player2" << std::endl;
@@ -90,19 +96,18 @@ NodeStatus BT_TEST::ChasePlayer2()
 NodeStatus BT_TEST::ChasePlayer3()
 {
     JMath::TVector location = GetOwnerActor()->GetRootComponent()->GetLocalLocation();
-    float mag = 0.1f;
-    location.x += BB.direction.x * mag / BB.distance;
-    location.y = abs(sin(BB.timer.Elapsed() * 10)) * 3;
-    location.z += BB.direction.z * mag / BB.distance;
+    location.x += BB.direction.x * MAG / BB.distance;
+    location.y = abs(sin(BB.timer.Elapsed() * 7)) * 3;
+    location.z += BB.direction.z * MAG / BB.distance;
     GetOwnerActor()->GetRootComponent()->SetLocalLocation(location);
     
     std::cout << "Chase Player3" << std::endl;
     return NodeStatus::Success;
 }
 
-NodeStatus BT_TEST::IsPlayerClose()
+NodeStatus BT_TEST::IsPlayerClose(UINT N)
 {
-    if (BB.distance <= 5)
+    if (BB.distance <= N)
         return NodeStatus::Success;
     else
         return NodeStatus::Failure;
@@ -118,34 +123,58 @@ NodeStatus BT_TEST::Not(NodeStatus state)
         return state;
 }
 
+NodeStatus BT_TEST::RandN(UINT N)
+{
+    if (!BB.flag)
+    {
+        BB.randIndex = FMath::GenerateNum(0, N - 1);
+        BB.flag = true;
+    }
+    return NodeStatus::Success;
+}
+
+NodeStatus BT_TEST::IsRandSame(UINT N)
+{
+    if (BB.randIndex == N)
+        return NodeStatus::Success;
+    else
+        return NodeStatus::Failure;
+}
+
 
 void BT_TEST::SetupTree()
 {
     BTRoot = builder
-             .createRoot("RootSelector")
+            .createRoot("RootSelector")
                 .addSequence("StopSequence")
-                    .addActionNode([this]()-> NodeStatus { return IsPlayerClose(); })
+                    .addActionNode([this]()-> NodeStatus { return IsPlayerClose(5); })
                     .addActionNode([this]()-> NodeStatus { return StopChase(); })
                 .endBranch()
-                .addSequence("ChaseSequence")
-                    .addActionNode([this]()-> NodeStatus { return Not(IsPlayerClose()); })
-                    .addActionNode([this]()-> NodeStatus { return ChasePlayer3(); })
-                .endBranch()
-             .build();
+                .addActionNode([this]()-> NodeStatus { return ChasePlayer3(); })
+            .build();
 }
 
 void BT_TEST::SetupTree2()
 {
     BTRoot = builder
-             .createRoot("RootSelector")
+            .createRoot("RootSelector")
                 .addSequence("StopSequence")
-                    .addActionNode([this]()-> NodeStatus { return IsPlayerClose(); })
-                    .addActionNode([this]()-> NodeStatus { return StopChase(); })
+                    .addActionNode([this]()-> NodeStatus { return IsPlayerClose(5); })
+                    .addActionNode([this]()-> NodeStatus { return StopChase2(); })
                 .endBranch()
-                .addSequence("ChaseSequence")
-                    .addActionNode([this]()-> NodeStatus { return Not(IsPlayerClose()); })
-                    .addActionNode([this]()-> NodeStatus { return ChasePlayer3(); })
+                .addSequence("RandSequence")
+                    .addActionNode([this]()-> NodeStatus { return RandN(2); })
+                    .addSelector("ActSelector")
+                        .addSequence("Act1")
+                            .addActionNode([this]()-> NodeStatus { return IsRandSame(0); })
+                            .addActionNode([this]()-> NodeStatus { return ChasePlayer2(); })
+                        .endBranch()
+                        .addSequence("Act2")
+                            .addActionNode([this]()-> NodeStatus { return IsRandSame(1); })
+                            .addActionNode([this]()-> NodeStatus { return ChasePlayer3(); })
+                        .endBranch()
+                    .endBranch()
                 .endBranch()
-             .build();
+            .build();
 }
 
