@@ -44,6 +44,7 @@ public:
     void FollowPath(float DeltaTime);
 
     float mSpeed = 1000;
+    float mRotateSpeed = 300;
     bool IsPosUpdated = false;
     bool PushToggle = false;
     bool PushHold = false;

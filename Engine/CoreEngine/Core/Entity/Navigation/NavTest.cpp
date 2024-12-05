@@ -4,6 +4,7 @@
 #include "Core/Entity/Level/MLevelManager.h"
 #include "Core/Graphics/Vertex/XTKPrimitiveBatch.h"
 #include "Core/Graphics/Texture/MTextureManager.h"
+#include "Core/Entity/Camera/MCameraManager.h"
 #include "Core/Interface/JWorld.h"
 
 void NavTest::Initialize()
@@ -13,7 +14,7 @@ void NavTest::Initialize()
     NodeRadius = 50.0f;
     NodeCenter = FVector(NodeRadius, 0, - NodeRadius);
     GridDivs = FVector2(200, 200);
-    GridCenter = FVector(0, 0, 0); // x, y, z
+    GridCenter = FVector(0, 100, 0); // x, y, z
     
     NodeDiameter = NodeRadius * 2.0f;
     GridWorldSize = FVector2(GridDivs.x * NodeDiameter, GridDivs.y * NodeDiameter);
@@ -60,7 +61,7 @@ void NavTest::Update(float DeltaTime)
         {
             PlayerPos = actor.get()->GetWorldLocation();
         }
-        else if (firstRun && actor.get()->GetName().starts_with("Cone"))
+        else if (firstRun && actor.get()->GetName().starts_with("SK_BigZombie"))
         {
             static int32_t enemyNum = 0;
             JText enemyCompName = std::format("Enemy_{}", enemyNum++);
@@ -76,7 +77,8 @@ void NavTest::Update(float DeltaTime)
 
 void NavTest::Render()
 {
-    G_DebugBatch.PreRender();
+    auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
+    G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
     {
         G_DebugBatch.DrawGrid_Implement(
             {NodeScale.x, 0, 0},

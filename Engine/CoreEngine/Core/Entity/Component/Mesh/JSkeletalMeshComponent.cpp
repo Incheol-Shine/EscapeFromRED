@@ -19,7 +19,7 @@ JSkeletalMeshComponent::JSkeletalMeshComponent(JTextView InName, AActor* InOwner
 
 uint32_t JSkeletalMeshComponent::GetType() const
 {
-	return JSceneComponent::GetType();
+	return StringHash("SkeletalMeshComponent");
 }
 
 bool JSkeletalMeshComponent::Serialize_Implement(std::ofstream& FileStream)
