@@ -12,6 +12,7 @@
 #include "Core/Window/Window.h"
 #include "inifile_cpp/inicpp.h"
 
+#include "Core/Entity/Navigation/NavTest.h"
 
 // ---------------------------- Default Settings -------------------------
 ini::IniFile   g_settings;
@@ -78,6 +79,7 @@ void Application::Initialize()
 	mFpsText->SetFontSize(36);
 	mFpsText->SetColor(FLinearColor::Gallary);
 	mFpsText->SetScreenPosition({5, 5});
+	NAV_MAP.Initialize();
 }
 
 void Application::Run()
@@ -111,6 +113,7 @@ void Application::Update(float DeltaTime)
 
 	mFpsText->Update(DeltaTime);
 	mFpsText->SetText(std::format(L"fps: {:d}", mFramesPerSec));
+	NAV_MAP.Update(DeltaTime);
 }
 
 void Application::Render()
@@ -122,6 +125,7 @@ void Application::Render()
 	mFpsText->Draw();
 
 	GetWorld.D3D11API->Draw();
+	NAV_MAP.Render();
 }
 
 void Application::Release()
