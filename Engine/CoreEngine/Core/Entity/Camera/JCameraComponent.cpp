@@ -509,11 +509,18 @@ void JCamera_Debug::UpdateInput(float DeltaTime)
 	else if (IsKeyPressed(EKeyCode::A))
 		mInputDirection.x -= 1.f;
 
+	// if (IsKeyPressed(EKeyCode::Home))
+	// {
+	// 	mYaw           = 0.f;
+	// 	mPitch         = 0.f;
+	// 	mLocalLocation = mDefaultEye;
+	// }
+
 	if (IsKeyPressed(EKeyCode::Home))
 	{
-		mYaw           = 0.f;
-		mPitch         = 0.f;
-		mLocalLocation = mDefaultEye;
+		mYaw   = 0.f;
+		mPitch = XM_PIDIV2;
+		mLocalLocation = FVector(-1920.000, 1500.f, -4955.000);
 	}
 }
 

@@ -165,7 +165,7 @@ void GUI_Editor_SkeletalMesh::DrawMaterialSlot() const
 				for (int32_t j = 0; j < subMeshSize; ++j)
 				{
 
-					ImGui::ImageButton(nullptr, ImVec2(100, 100));
+					ImGui::ImageButton(".", nullptr, ImVec2(100, 100));
 					ImGui::Text(subMeshes[j]->GetName().c_str());
 
 					if (ImGui::IsMouseReleased(0) && ImGui::IsItemHovered() && ImGui::BeginDragDropTarget())
@@ -207,7 +207,7 @@ void GUI_Editor_SkeletalMesh::DrawAnimationPreview() const
 	if (ImGui::BeginChild("RightView", ImVec2(0, 0), ImGuiChildFlags_ResizeX | ImGuiChildFlags_Border))
 
 
-		ImGui::ImageButton(nullptr, ImVec2(100, 100));
+		ImGui::ImageButton("..", nullptr, ImVec2(100, 100));
 	// ImGui::Text(subMeshes[j]->GetName().c_str());
 
 	if (ImGui::IsMouseReleased(0) && ImGui::BeginDragDropTarget())

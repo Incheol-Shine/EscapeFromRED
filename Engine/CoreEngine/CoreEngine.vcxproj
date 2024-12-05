@@ -123,6 +123,9 @@
     <ClInclude Include="Core\Entity\Level\JLevel.h" />
     <ClInclude Include="Core\Entity\Level\MLevelManager.h" />
     <ClInclude Include="Core\Entity\Light\JLightComponent.h" />
+    <ClInclude Include="Core\Entity\Navigation\AStar.h" />
+    <ClInclude Include="Core\Entity\Navigation\NavTest.h" />
+    <ClInclude Include="Core\Entity\Navigation\Node.h" />
     <ClInclude Include="Core\Gameplay\IGameMode.h" />
     <ClInclude Include="Core\Graphics\DirectMathHelper.h" />
     <ClInclude Include="Core\Graphics\Font\JFont.h" />
@@ -273,6 +276,9 @@
     <ClCompile Include="Core\Entity\Level\JLevel.cpp" />
     <ClCompile Include="Core\Entity\Level\MLevelManager.cpp" />
     <ClCompile Include="Core\Entity\Light\JLightComponent.cpp" />
+    <ClCompile Include="Core\Entity\Navigation\AStar.cpp" />
+    <ClCompile Include="Core\Entity\Navigation\NavTest.cpp" />
+    <ClCompile Include="Core\Entity\Navigation\Node.cpp" />
     <ClCompile Include="Core\Gameplay\IGameMode.cpp" />
     <ClCompile Include="Core\Graphics\Font\JFont.cpp" />
     <ClCompile Include="Core\Graphics\Font\XTKFont.cpp" />

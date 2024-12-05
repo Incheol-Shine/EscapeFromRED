@@ -34,6 +34,14 @@ void AActor::BeginPlay()
 void AActor::Tick(float DeltaTime)
 {
 	JSceneComponent::Tick(DeltaTime);
+	// Incheol
+	for (auto& ActorComponent : mActorComponents)
+	{
+		if(ActorComponent)
+		{
+			ActorComponent->Tick(DeltaTime);
+		}
+	}
 }
 
 void AActor::Destroy()
