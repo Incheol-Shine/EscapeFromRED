@@ -51,15 +51,13 @@ void AStar::Tick(float DeltaTime)
             GetOwnerActor()->SetLocalRotation(rotation);
         }
     }
-
-    auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
-    G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
-    for (auto grid : mPath)
-    {
-        NAV_MAP.DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Cyan);
-    }
-    G_DebugBatch.PostRender();
-    
+    // auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
+    // G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
+    // for (auto grid : mPath)
+    // {
+    //     NAV_MAP.DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Cyan);
+    // }
+    // G_DebugBatch.PostRender();
 }
 
 void AStar::Destroy()
