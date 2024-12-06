@@ -80,16 +80,16 @@ void NavTest::Render()
     auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
     G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
     {
-        G_DebugBatch.DrawGrid_Implement(
-            {NodeScale.x, 0, 0},
-            {0, 0, NodeScale.y},
-            GridCenter,
-            GridDivs.x,
-            GridDivs.y,
-            Colors::Gray
-        );
-        DrawNode(GridFromWorldPoint(PlayerPos), Colors::Cyan);
-        DrawUnWalkable();
+        // G_DebugBatch.DrawGrid_Implement(
+        //     {NodeScale.x, 0, 0},
+        //     {0, 0, NodeScale.y},
+        //     GridCenter,
+        //     GridDivs.x,
+        //     GridDivs.y,
+        //     Colors::Gray
+        // );
+        // DrawUnWalkable();
+        // DrawNode(GridFromWorldPoint(PlayerPos), Colors::Cyan);
         // for (auto grid : tempPath)
         // {
         //     DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Cyan);
