@@ -142,6 +142,7 @@ void GUI_Editor_SkeletalMesh::DrawMaterialSlot() const
 				}
 			}
 		}
+		ImGui::EndGroup();
 	}
 
 	ImGui::EndChild();
