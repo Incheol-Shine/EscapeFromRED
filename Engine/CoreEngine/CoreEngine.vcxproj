@@ -114,6 +114,11 @@
     <ClInclude Include="Core\Entity\Audio\MSoundManager.h" />
     <ClInclude Include="Core\Entity\Camera\JCameraComponent.h" />
     <ClInclude Include="Core\Entity\Camera\MCameraManager.h" />
+    <ClInclude Include="Core\Entity\Component\AI\BT\BTBuilder.h" />
+    <ClInclude Include="Core\Entity\Component\AI\BT\BT_TEST.h" />
+    <ClInclude Include="Core\Entity\Component\AI\BT\Node.h" />
+    <ClInclude Include="Core\Entity\Component\AI\Navigation\Path.h" />
+    <ClInclude Include="Core\Entity\Component\AI\Navigation\TempLine.h" />
     <ClInclude Include="Core\Entity\Component\JActorComponent.h" />
     <ClInclude Include="Core\Entity\Component\Mesh\JSkeletalMeshComponent.h" />
     <ClInclude Include="Core\Entity\Component\Mesh\JStaticMeshComponent.h" />
@@ -127,9 +132,6 @@
     <ClInclude Include="Core\Entity\Light\JLightComponent.h" />
     <ClInclude Include="Core\Entity\Light\JLight_Point.h" />
     <ClInclude Include="Core\Entity\Light\JLight_Spot.h" />
-    <ClInclude Include="Core\Entity\Navigation\AStar.h" />
-    <ClInclude Include="Core\Entity\Navigation\NavTest.h" />
-    <ClInclude Include="Core\Entity\Navigation\Node.h" />
     <ClInclude Include="Core\Gameplay\IGameMode.h" />
     <ClInclude Include="Core\Graphics\DirectMathHelper.h" />
     <ClInclude Include="Core\Graphics\Font\JFont.h" />
@@ -278,6 +280,11 @@
     <ClCompile Include="Core\Entity\Audio\MSoundManager.cpp" />
     <ClCompile Include="Core\Entity\Camera\JCameraComponent.cpp" />
     <ClCompile Include="Core\Entity\Camera\MCameraManager.cpp" />
+    <ClCompile Include="Core\Entity\Component\AI\BT\BTBuilder.cpp" />
+    <ClCompile Include="Core\Entity\Component\AI\BT\BT_TEST.cpp" />
+    <ClCompile Include="Core\Entity\Component\AI\BT\Node.cpp" />
+    <ClCompile Include="Core\Entity\Component\AI\Navigation\Path.cpp" />
+    <ClCompile Include="Core\Entity\Component\AI\Navigation\TempLine.cpp" />
     <ClCompile Include="Core\Entity\Component\JActorComponent.cpp" />
     <ClCompile Include="Core\Entity\Component\Mesh\JSkeletalMeshComponent.cpp" />
     <ClCompile Include="Core\Entity\Component\Mesh\JStaticMeshComponent.cpp" />
@@ -291,9 +298,6 @@
     <ClCompile Include="Core\Entity\Light\JLightComponent.cpp" />
     <ClCompile Include="Core\Entity\Light\JLight_Point.cpp" />
     <ClCompile Include="Core\Entity\Light\JLight_Spot.cpp" />
-    <ClCompile Include="Core\Entity\Navigation\AStar.cpp" />
-    <ClCompile Include="Core\Entity\Navigation\NavTest.cpp" />
-    <ClCompile Include="Core\Entity\Navigation\Node.cpp" />
     <ClCompile Include="Core\Gameplay\IGameMode.cpp" />
     <ClCompile Include="Core\Graphics\Font\JFont.cpp" />
     <ClCompile Include="Core\Graphics\Font\XTKFont.cpp" />

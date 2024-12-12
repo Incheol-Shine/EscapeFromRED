@@ -9,6 +9,8 @@
 #include "Core/Entity/Camera/MCameraManager.h"
 #include "Core/Interface/JWorld.h"
 
+#include "Core/Utils/Math/Vector2.h"
+
 void AStar::Initialize()
 {
 }
@@ -19,7 +21,6 @@ void AStar::BeginPlay()
 
 void AStar::Tick(float DeltaTime)
 {
-    
     mInputKeyboard.Update(DeltaTime);
     PushHold = false;
     if (IsKeyPressed(EKeyCode::Space))
@@ -35,7 +36,6 @@ void AStar::Tick(float DeltaTime)
         {
             NewPlayerPos = NAV_MAP.PlayerPos;
             FVector2 npcGrid = NAV_MAP.GridFromWorldPoint(GetOwnerActor()->GetWorldLocation());
-            // if (npcGrid.y < NAV_MAP.mGridGraph.size())
             if (NAV_MAP.mGridGraph[playerGrid.y][playerGrid.x]->Walkable)
             {
                 FindPath(NAV_MAP.mGridGraph.at(npcGrid.y).at(npcGrid.x),
@@ -43,20 +43,37 @@ void AStar::Tick(float DeltaTime)
                 mSpeed = FMath::GenerateRandomFloat(300, 800);
             }
         }
-        if (mPath.size() > 1)
+        if (mPathIdx < mPath->lookPoints.size())
             FollowPath(DeltaTime);
         else
         {
             FVector rotation = GetOwnerActor()->GetLocalRotation();
-            rotation.y += DeltaTime * mRotateSpeed * 5;
+            rotation.y += DeltaTime * mRotateSpeed * 50;
             GetOwnerActor()->SetLocalRotation(rotation);
         }
     }
+
     auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
     G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
-    for (auto grid : mPath)
-    {
-        NAV_MAP.DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Cyan);
+    if (mPath)
+    {int flag = 0;
+        for (auto grid : mPath->lookPoints)
+        {
+            if (flag == 0)
+            {
+                NAV_MAP.DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Yellow);
+                flag = 1;
+            }
+            else
+                NAV_MAP.DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Cyan);
+        }
+        for (auto line : mPath->turnBoundaries)
+        {
+            G_DebugBatch.DrawRay_Implement(FVector(line->pointOnLine_1.x, 0.5, line->pointOnLine_1.y),
+                100 * FVector(line->pointOnLine_2.x - line->pointOnLine_1.x, 0.005, line->pointOnLine_2.y - line->pointOnLine_1.y),
+                false,
+                Colors::HotPink);   
+        }
     }
     G_DebugBatch.PostRender();
 }
@@ -118,31 +135,28 @@ int AStar::GetDistance(Ptr<Node> A, Ptr<Node> B)
 
 void AStar::RetracePath(Ptr<Node> Start, Ptr<Node> Target)
 {
-    mPath.clear();
+    std::vector<Ptr<NAV::Node>> TempPath;
     Ptr<Node> current = Target;
     while (current != Start)
     {
-        mPath.push_back(current);
+        TempPath.push_back(current);
         current = current->Parent.lock();
     }
-    NAV_MAP.tempPath = mPath;
+    std::reverse(TempPath.begin(), TempPath.end());
+    NAV_MAP.tempPath = TempPath;
+    mPath = MakePtr<Path>(TempPath, Start->WorldPos, turnDst);
+    mPathIdx = 0;
 }
 
 void AStar::FollowPath(float DeltaTime)
 {
-    FVector NextPos = mPath.back()->WorldPos;
+    FVector NextPos = mPath->lookPoints.at(mPathIdx)->WorldPos;
     FVector currentPos = GetOwnerActor()->GetWorldLocation();
-    FVector direction = NextPos - currentPos + NAV_MAP.NodeCenter;
-    if (abs(direction.Length()) < 10)
+    FVector direction = FVector(NextPos.x - currentPos.x, NextPos.y - currentPos.y, NextPos.z - currentPos.z);
+    if (mPath->turnBoundaries.at(mPathIdx)->HasCrossedLine(Path::V3ToV2(currentPos)))
     {
-        if (!IsPosUpdated)
-        {
-            mPath.pop_back();
-            IsPosUpdated = true;
-            
-            // std::cout << "nextNode : x = " << NextPos.x << " y = " << NextPos.y <<
-            //     "  direction : x = " << direction.x << " z = " << direction.z << std::endl;
-        }
+        mPathIdx++;
+        IsPosUpdated = true;
     }
     else
     {
@@ -150,9 +164,7 @@ void AStar::FollowPath(float DeltaTime)
         FVector location = GetOwnerActor()->GetLocalLocation();
         FVector NormalDirection;
         direction.Normalize(NormalDirection);
-        location += NormalDirection * mSpeed * DeltaTime;
-        GetOwnerActor()->SetLocalLocation(location);
-
+        
         float theta = atan2(NormalDirection.x, NormalDirection.z);
         float degree = theta * (180.0f / M_PI);
         
@@ -167,9 +179,9 @@ void AStar::FollowPath(float DeltaTime)
             angleDifference += 360.0f;
 
         if (angleDifference > 0)
-            rotation.y += DeltaTime * mRotateSpeed; // 시계 방향 회전
+            rotation.y += DeltaTime * mRotateSpeed * abs(angleDifference);
         else
-            rotation.y -= DeltaTime * mRotateSpeed; // 반시계 방향 회전
+            rotation.y -= DeltaTime * mRotateSpeed * abs(angleDifference); // 반시계 방향 회전
 
         // 각도를 0도에서 360도 사이로 정규화
         if (rotation.y >= 360.0f)
@@ -178,5 +190,19 @@ void AStar::FollowPath(float DeltaTime)
             rotation.y += 360.0f;
         
         GetOwnerActor()->SetLocalRotation(rotation);
+
+        float rotationRadians = rotation.y * M_PI / 180.0f;
+        float target_x = -sin(rotationRadians) * mSpeed * DeltaTime;
+        float target_z = -cos(rotationRadians) * mSpeed * DeltaTime;
+
+
+        auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
+        G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
+        G_DebugBatch.DrawRay_Implement(location, 100 * FVector(target_x, 0, target_z)
+            , false, Colors::BlueViolet);
+        G_DebugBatch.PostRender();
+        
+        location = FVector(location.x + target_x, 50, location.z + target_z);
+        GetOwnerActor()->SetLocalLocation(location);
     }
 }

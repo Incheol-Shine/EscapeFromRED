@@ -5,6 +5,7 @@
 #include "Core/Entity/Component/JActorComponent.h"
 #include "Core/Input/XKeyboardMouse.h"
 
+class Path;
 namespace NAV
 {
     class Node;
@@ -43,13 +44,16 @@ public:
     void RetracePath(Ptr<NAV::Node> Start, Ptr<NAV::Node> Target);
     void FollowPath(float DeltaTime);
 
-    float mSpeed = 1000;
-    float mRotateSpeed = 300;
+    float mSpeed = 70;
+    float mRotateSpeed = 30;
+    float turnDst = 1;
     bool IsPosUpdated = false;
     bool PushToggle = false;
     bool PushHold = false;
     FVector NewPlayerPos = FVector::ZeroVector;
-    std::vector<Ptr<NAV::Node>> mPath;
+    // std::vector<Ptr<NAV::Node>> mPath;
+    Ptr<Path> mPath;
+    int mPathIdx = 0;
 
 private:
     FORCEINLINE bool IsKeyPressed(EKeyCode InKey) const { return mInputKeyboard.IsKeyPressed(InKey); }

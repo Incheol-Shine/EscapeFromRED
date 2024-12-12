@@ -61,7 +61,7 @@ void NavTest::Update(float DeltaTime)
         {
             PlayerPos = actor.get()->GetWorldLocation();
         }
-        else if (firstRun && actor.get()->GetName().starts_with("SM_BigZombie"))
+        else if (firstRun && actor.get()->GetName().starts_with("SK_BigZombie"))
         {
             static int32_t enemyNum = 0;
             JText enemyCompName = std::format("Enemy_{}", enemyNum++);
@@ -88,8 +88,8 @@ void NavTest::Render()
             GridDivs.y,
             Colors::Gray
         );
-        DrawUnWalkable();
         DrawNode(GridFromWorldPoint(PlayerPos), Colors::Cyan);
+        DrawUnWalkable();
         // for (auto grid : tempPath)
         // {
         //     DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Cyan);
@@ -124,8 +124,8 @@ void NavTest::DrawNode(FVector2 grid, FXMVECTOR InColor)
 
 FVector NavTest::WorldPosFromGridPos(int col, int row)
 {
-    float x = GridTopLeft.x + col * NodeDiameter;
-    float z = (GridTopLeft.z - row * NodeDiameter);
+    float x = GridTopLeft.x + col * NodeDiameter + NodeCenter.x;
+    float z = (GridTopLeft.z - row * NodeDiameter + NodeCenter.z);
     return FVector(x, GridTopLeft.y, z);
 }
 

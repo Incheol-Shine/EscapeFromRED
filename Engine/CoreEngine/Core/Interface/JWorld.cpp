@@ -4,7 +4,7 @@
 #include "Core/Entity/Audio/MSoundManager.h"
 #include "Core/Entity/Camera/MCameraManager.h"
 #include "Core/Entity/Level/MLevelManager.h"
-#include "Core/Entity/Navigation/NavTest.h"
+#include "Core/Entity/Component/AI/Navigation/NavTest.h"
 #include "Core/Graphics/XD3DDevice.h"
 #include "Core/Graphics/Mesh/MMeshManager.h"
 #include "Core/Graphics/Shader/MShaderManager.h"
