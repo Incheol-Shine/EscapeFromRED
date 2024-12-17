@@ -43,7 +43,10 @@ JSkeletalMeshObject::JSkeletalMeshObject(const JSkeletalMeshObject& Other)
 	: JMeshObject(Other)
 {
 	mSkeletalMesh        = Other.mSkeletalMesh;
-	mSampleAnimation     = UPtrCast<JAnimationClip>(Other.mSampleAnimation->Clone());
+	if (Other.mSampleAnimation)
+	{
+		mSampleAnimation     = UPtrCast<JAnimationClip>(Other.mSampleAnimation->Clone());
+	}
 	mInstanceBuffer_Bone = Other.mInstanceBuffer_Bone;
 }
 

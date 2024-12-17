@@ -19,7 +19,7 @@ void JMaterial_Basic::BindShader(ID3D11DeviceContext* InDeviceContext)
 
 void JMaterial_Basic::InitializeParams()
 {
-	if (mMaterialParams.empty() || mMaterialParams.size() == 9 || mMaterialParams.size() == 6)
+	if (!mMaterialParams.empty() || mMaterialParams.size() == 9 || mMaterialParams.size() == 6)
 	{
 		mMaterialParams.clear();
 

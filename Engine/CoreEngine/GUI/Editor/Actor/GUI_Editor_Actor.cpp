@@ -55,6 +55,15 @@ void GUI_Editor_Actor::ShowMenuBar()
 		ImGui::EndMenu();
 
 	}
+
+	// AActor* enemy;
+	// JSceneComponent* boxCollider = enemy->GetChildSceneComponentByName("123123");
+	// if (boxCollider)
+	// {
+	// 	JBoxComponent* collider = static_cast<JBoxComponent*>(boxCollider);
+	// 	collider->IsIntersect()
+	// }
+	
 }
 
 void GUI_Editor_Actor::Initialize()
@@ -149,6 +158,13 @@ void GUI_Editor_Actor::DrawHierarchy()
 								 mActorToEdit.get(),
 								 mActorToEdit.get());
 						meshComp->SetupAttachment(mSelectedSceneComponent);
+					}
+					if (n == 5 && mSelectedSceneComponent)
+					{
+						auto* boxComp = mActorToEdit->CreateDefaultSubObject<JBoxComponent>(g_ComponentList[n],
+							mActorToEdit.get(),
+							mActorToEdit.get());
+						boxComp->SetupAttachment(mSelectedSceneComponent);
 					}
 				}
 

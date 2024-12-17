@@ -2,5 +2,5 @@
 
 MTextureManager::MTextureManager()
 {
-	WhiteTexture = Load("rsc/Engine/White.png");
+	WhiteTexture = Load("Game/Textures/Horror_Map/T_Mask/T_white.PNG");
 }

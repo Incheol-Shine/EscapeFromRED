@@ -7,7 +7,7 @@
 #include "Core/Graphics/Texture/JTexture.h"
 
 using namespace DirectX;
-using namespace NAV;
+using namespace Nav;
 
 #define NAV_MAP NavTest::Get()
 
@@ -54,6 +54,6 @@ public:
     JTexture* MapFile;
     
     std::vector<std::vector<Ptr<Node>>> mGridGraph;
-    std::vector<Ptr<NAV::Node>> tempPath;
+    std::vector<Ptr<Nav::Node>> tempPath;
     
 };

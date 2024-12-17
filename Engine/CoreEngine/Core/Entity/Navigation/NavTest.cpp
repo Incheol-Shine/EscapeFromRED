@@ -6,15 +6,16 @@
 #include "Core/Graphics/Texture/MTextureManager.h"
 #include "Core/Entity/Camera/MCameraManager.h"
 #include "Core/Interface/JWorld.h"
+#include "Core/Entity/Component/AI/BT/BT_BOSS.h"
+// #include "Core/Utils/Math/MathUtility.h"
 
 void NavTest::Initialize()
 {
     LoadMapFile("rsc\\GameResource\\GridMap\\GridMap.png");
-    MapFile;
     NodeRadius = 50.0f;
     NodeCenter = FVector(NodeRadius, 0, - NodeRadius);
     GridDivs = FVector2(200, 200);
-    GridCenter = FVector(0, 100, 0); // x, y, z
+    GridCenter = FVector(0, 101, 0); // x, y, z
     
     NodeDiameter = NodeRadius * 2.0f;
     GridWorldSize = FVector2(GridDivs.x * NodeDiameter, GridDivs.y * NodeDiameter);
@@ -23,9 +24,6 @@ void NavTest::Initialize()
                             GridCenter.y,
                             GridCenter.z + GridWorldSize.y/2);
     ObstacleScale = 50 / NodeRadius;
-
-
-
 
     
     for (int row = 0; row < GridDivs.y; row++)
@@ -61,11 +59,11 @@ void NavTest::Update(float DeltaTime)
         {
             PlayerPos = actor.get()->GetWorldLocation();
         }
-        else if (firstRun && actor.get()->GetName().starts_with("SM_BigZombie"))
+        else if (firstRun && actor.get()->GetName().starts_with("SK_BigZombie"))
         {
             static int32_t enemyNum = 0;
             JText enemyCompName = std::format("Enemy_{}", enemyNum++);
-            actor.get()->CreateDefaultSubObject<AStar>(enemyCompName);
+            actor.get()->CreateDefaultSubObject<BT_BOSS>(enemyCompName);
         }
     }
     if (firstRun)
@@ -88,8 +86,8 @@ void NavTest::Render()
             GridDivs.y,
             Colors::Gray
         );
-        DrawUnWalkable();
         DrawNode(GridFromWorldPoint(PlayerPos), Colors::Cyan);
+        DrawUnWalkable();
         // for (auto grid : tempPath)
         // {
         //     DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Cyan);
@@ -114,18 +112,18 @@ void NavTest::DrawNode(FVector2 grid, FXMVECTOR InColor)
 {
     G_DebugBatch.DrawQuad_Implement(
         // tl - tr - br - bl
-        {GridTopLeft.x + grid.x * NodeDiameter, 0.1, GridTopLeft.z - grid.y * NodeDiameter},
-        {GridTopLeft.x + (grid.x + 1) * NodeDiameter, 0.1, GridTopLeft.z - grid.y * NodeDiameter},
-        {GridTopLeft.x + (grid.x + 1) * NodeDiameter, 0.1, GridTopLeft.z - (grid.y + 1) * NodeDiameter},
-        {GridTopLeft.x + grid.x * NodeDiameter, 0.1, GridTopLeft.z - (grid.y + 1) * NodeDiameter},
+        {GridTopLeft.x + grid.x * NodeDiameter, 101.1, GridTopLeft.z - grid.y * NodeDiameter},
+        {GridTopLeft.x + (grid.x + 1) * NodeDiameter, 101.1, GridTopLeft.z - grid.y * NodeDiameter},
+        {GridTopLeft.x + (grid.x + 1) * NodeDiameter, 101.1, GridTopLeft.z - (grid.y + 1) * NodeDiameter},
+        {GridTopLeft.x + grid.x * NodeDiameter, 101.1, GridTopLeft.z - (grid.y + 1) * NodeDiameter},
         InColor
     );
 }
 
 FVector NavTest::WorldPosFromGridPos(int col, int row)
 {
-    float x = GridTopLeft.x + col * NodeDiameter;
-    float z = (GridTopLeft.z - row * NodeDiameter);
+    float x = GridTopLeft.x + col * NodeDiameter + NodeCenter.x;
+    float z = (GridTopLeft.z - row * NodeDiameter + NodeCenter.z);
     return FVector(x, GridTopLeft.y, z);
 }
 
@@ -140,6 +138,10 @@ FVector2 NavTest::GridFromWorldPoint(FVector worldPos)
 {
     int gridX = floor((worldPos.x - GridTopLeft.x) / NodeDiameter);
     int gridY = -ceil((worldPos.z - GridTopLeft.z) / NodeDiameter);
+
+    gridX = FMath::Clamp(gridX, 0, GridDivs.x - 1);
+    gridY = FMath::Clamp(gridY, 0, GridDivs.y - 1);
+    
     return FVector2(gridX, gridY);
 }
 

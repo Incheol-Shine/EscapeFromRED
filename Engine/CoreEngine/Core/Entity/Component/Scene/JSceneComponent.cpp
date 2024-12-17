@@ -414,6 +414,8 @@ void JBoxComponent::Initialize()
 void JBoxComponent::Tick(float DeltaTime)
 {
 	JSceneComponent::Tick(DeltaTime);
+
+	mBoundingBox.Box.Center = mWorldLocation;
 }
 
 void JBoxComponent::Draw()

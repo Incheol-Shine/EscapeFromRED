@@ -213,6 +213,11 @@ public:
 
 public:
 	void ShowEditor() override;
+
+public:
+	bool IsIntersect(const JBoxComponent& OtherBoxComp);
+	bool IsIntersect(const FBoxShape& OtherBox);
+	bool IsIntersect(const FRay& InRay);
 };
 
 REGISTER_CLASS_TYPE(JBoxComponent);

@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Utils/Math/Vector.h"
 
-namespace NAV
+namespace Nav
 {
     class Node
     {
@@ -20,11 +20,11 @@ namespace NAV
         int GridY;
         int GCost = 0;
         int HCost = 0;
-
+        static float weight;
         WPtr<Node> Parent;
         std::vector<WPtr<Node>> Children;
 
     public:
-        int FCost(){ return GCost + HCost; }
+        int FCost(){ return GCost + weight * HCost; }
     };
 }
