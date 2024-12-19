@@ -55,7 +55,8 @@ void NavTest::Update(float DeltaTime)
                 }
             }
         }
-        else */if (actor.get()->GetName() == "Test Player")
+        else */
+        if (actor.get()->GetName() == "Test Player")
         {
             PlayerPos = actor.get()->GetWorldLocation();
         }
@@ -64,6 +65,22 @@ void NavTest::Update(float DeltaTime)
             static int32_t enemyNum = 0;
             JText enemyCompName = std::format("Enemy_{}", enemyNum++);
             actor.get()->CreateDefaultSubObject<BT_BOSS>(enemyCompName);
+        }
+
+        JSceneComponent* boxCollider = actor.get()->GetChildSceneComponentByName("123123");
+        if (firstRun && boxCollider)
+        {
+        	JBoxComponent* collider = static_cast<JBoxComponent*>(boxCollider);
+            ColliderTarget.insert(collider);
+        }
+
+        if (firstRun && actor.get()->GetName().starts_with("Cone"))
+        {
+            static int32_t rayNum = 0;
+            JText rayCompName = std::format("ray_{}", rayNum++);
+            actor.get()->CreateDefaultSubObject<SimpleRayComponent>(rayCompName, actor.get(), actor.get());
+            SimpleRayComponent* ray = static_cast<SimpleRayComponent*>(actor.get()->GetComponentByName("ray_0") );
+            RayCollider.insert(ray);
         }
     }
     if (firstRun)

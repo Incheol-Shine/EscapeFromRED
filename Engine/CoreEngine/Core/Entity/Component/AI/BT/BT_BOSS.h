@@ -44,7 +44,7 @@ public:
     NodeStatus Dead();
     NodeStatus StopChase2();
     NodeStatus ChasePlayer(const UINT N);
-    
+    void FollowPath();
     
     // Decorator Function
     NodeStatus IsPressedKey(EKeyCode Key);
@@ -54,7 +54,6 @@ public:
     NodeStatus IsPhase(int phase);
 
     // Just Function
-    void FollowPath();
     FVector RotateTowards(FVector direction, FVector rotation);
 public:
     BlackBoard BB;

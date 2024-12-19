@@ -34,6 +34,11 @@ struct FMath
 		return (B > A) ? A : B;
 	}
 
+	template <typename T>
+	[[nodiscard]] static constexpr inline T Min3(const T A, const T B, const T C)
+	{
+		return Min(Min(A, B), C);
+	}
 
 	//------------------------- Clamp --------------------------------
 	template <typename T>

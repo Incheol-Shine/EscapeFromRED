@@ -30,7 +30,7 @@ public:
     std::vector<Ptr<Nav::Node>> simplifyPath(const std::vector<Ptr<Nav::Node>> &path);
     bool IsLineBlocked(FVector2 prevGrid, FVector2 nextGrid);
 
-    float mSpeed = 70;
+    float mSpeed = 7;
     float mRotateSpeed = 25;
     float TurnDst = 1;
     bool IsPosUpdated = false;

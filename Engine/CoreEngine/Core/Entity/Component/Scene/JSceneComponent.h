@@ -201,6 +201,10 @@ public:
 	~JBoxComponent() override = default;
 
 public:
+	bool Serialize_Implement(std::ofstream& FileStream) override;
+	bool DeSerialize_Implement(std::ifstream& InFileStream) override;
+	
+public:
 	void Initialize() override;
 	void Tick(float DeltaTime) override;
 
@@ -216,9 +220,39 @@ public:
 
 public:
 	bool IsIntersect(const JBoxComponent& OtherBoxComp);
+	bool IsIntersectOBB(const JBoxComponent& OtherBoxComp);
 	bool IsIntersect(const FBoxShape& OtherBox);
 	bool IsIntersect(const FRay& InRay);
+
+	void HandleCollision(const JBoxComponent& OtherBoxComp, float DeltaTime);
+
+private:
+	FVector4 mColor = {0,0,1,1};
 };
 
 REGISTER_CLASS_TYPE(JBoxComponent);
+
+class SimpleRayComponent : public JSceneComponent
+{
+public:
+	SimpleRayComponent();
+	SimpleRayComponent(JTextView InName, AActor* InOwnerActor = nullptr, JSceneComponent* InParentSceneComponent = nullptr);
+	~SimpleRayComponent() override = default;
+	
+public:
+	void Initialize() override;
+	void Tick(float DeltaTime) override;
+
+public:
+	void PreRender() override {}
+	void AddInstance(float InCameraDistance) override {};
+	void PostRender() override {};
+	void Draw() override;
+	void DrawID(uint32_t ID) override {};
+
+	FRay mRay;
+	
+private:
+	FVector4 mColor = {1,0,1,1};
+};
 

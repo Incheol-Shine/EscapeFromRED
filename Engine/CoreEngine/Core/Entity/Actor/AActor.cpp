@@ -34,12 +34,12 @@ void AActor::BeginPlay()
 
 void AActor::Tick(float DeltaTime)
 {
-	JSceneComponent::Tick(DeltaTime);
-
 	for (auto& actorComponent : mActorComponents)
 	{
 		actorComponent->Tick(DeltaTime);
 	}
+
+	JSceneComponent::Tick(DeltaTime);
 }
 
 void AActor::Destroy()

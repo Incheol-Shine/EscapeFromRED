@@ -16,7 +16,7 @@ BT_BOSS::BT_BOSS(JTextView InName): JActorComponent(InName)
 {
     mInputKeyboard.Initialize();
     PaStar = MakePtr<AStar>();
-    SetupTree();
+    SetupTree2();
 }
 
 BT_BOSS::~BT_BOSS(){}
@@ -195,7 +195,8 @@ NodeStatus BT_BOSS::ChasePlayer(UINT N)
             PaStar->FindPath(NAV_MAP.mGridGraph.at(npcGrid.y).at(npcGrid.x),
             NAV_MAP.mGridGraph.at(playerGrid.y).at(playerGrid.x), 2);
             NeedsPathReFind = false;
-            PaStar->mSpeed = FMath::GenerateRandomFloat(300, 800);
+            // PaStar->mSpeed = FMath::GenerateRandomFloat(300, 800);
+            PaStar->mSpeed = 300.f;
         }
     }
     if (PaStar->mPath)
@@ -219,6 +220,38 @@ NodeStatus BT_BOSS::ChasePlayer(UINT N)
             return NodeStatus::Success;
     }
     return NodeStatus::Failure;
+}
+
+void BT_BOSS::FollowPath()
+{
+    FVector NextPos = PaStar->mPath->lookPoints.at(PaStar->mPathIdx)->WorldPos;
+    FVector currentPos = mOwnerActor->GetWorldLocation();
+    FVector direction = FVector(NextPos.x - currentPos.x, NextPos.y - currentPos.y, NextPos.z - currentPos.z);
+    if (PaStar->mPath->turnBoundaries.at(PaStar->mPathIdx)->HasCrossedLine(Path::V3ToV2(currentPos)))
+    {
+        PaStar->mPathIdx++;
+        mIsPosUpdated = true;
+    }
+    else
+    {
+        mIsPosUpdated = false;
+        FVector rotation = RotateTowards(direction, mOwnerActor->GetLocalRotation());
+        mOwnerActor->SetLocalRotation(rotation);
+        
+        FVector velocity = FVector::ZeroVector;
+        
+        float rotationRadians = rotation.y * M_PI / 180.0f;
+        velocity += FVector(-sin(rotationRadians), direction.y / 100, -cos(rotationRadians));
+        velocity *= PaStar->mSpeed * mDeltaTime;
+        mOwnerActor->SetWorldLocation(currentPos + velocity);
+        
+        // auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
+        // G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
+        // G_DebugBatch.DrawRay_Implement(currentPos, 100 * velocity
+        //     , false, Colors::BlueViolet);
+        // G_DebugBatch.PostRender();
+        
+    }
 }
 
 NodeStatus BT_BOSS::IsPressedKey(EKeyCode Key)
@@ -263,38 +296,6 @@ NodeStatus BT_BOSS::IsPhase(int phase)
         return NodeStatus::Success;
     else
         return NodeStatus::Failure;
-}
-
-void BT_BOSS::FollowPath()
-{
-    FVector NextPos = PaStar->mPath->lookPoints.at(PaStar->mPathIdx)->WorldPos;
-    FVector currentPos = mOwnerActor->GetWorldLocation();
-    FVector direction = FVector(NextPos.x - currentPos.x, NextPos.y - currentPos.y, NextPos.z - currentPos.z);
-    if (PaStar->mPath->turnBoundaries.at(PaStar->mPathIdx)->HasCrossedLine(Path::V3ToV2(currentPos)))
-    {
-        PaStar->mPathIdx++;
-        mIsPosUpdated = true;
-    }
-    else
-    {
-        mIsPosUpdated = false;
-        FVector rotation = RotateTowards(direction, mOwnerActor->GetLocalRotation());
-        mOwnerActor->SetLocalRotation(rotation);
-        
-        FVector velocity = FVector::ZeroVector;
-        
-        float rotationRadians = rotation.y * M_PI / 180.0f;
-        velocity += FVector(-sin(rotationRadians), direction.y, -cos(rotationRadians));
-        velocity *= PaStar->mSpeed * mDeltaTime;
-        mOwnerActor->SetWorldLocation(currentPos + velocity);
-        
-        // auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
-        // G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
-        // G_DebugBatch.DrawRay_Implement(currentPos, 100 * velocity
-        //     , false, Colors::BlueViolet);
-        // G_DebugBatch.PostRender();
-        
-    }
 }
 
 FVector BT_BOSS::RotateTowards(FVector direction, FVector rotation)
@@ -396,8 +397,8 @@ void BT_BOSS::SetupTree2()
 {
     BTRoot = builder
             .CreateRoot<Sequence>()
-                .AddActionNode(LAMBDA(IsPressedKey, EKeyCode::Space))
-                .AddActionNode(LAMBDA(ChasePlayer, 1))
-                .AddActionNode(LAMBDA(Attack))
+                // .AddActionNode(LAMBDA(IsPressedKey, EKeyCode::Space))
+                // .AddActionNode(LAMBDA(ChasePlayer, 0))
+                // .AddActionNode(LAMBDA(Attack))
             .Build();
 }

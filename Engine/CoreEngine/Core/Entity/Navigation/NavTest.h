@@ -52,6 +52,8 @@ public:
     bool firstRun = true;
     int ObstacleScale  = 1;
     JTexture* MapFile;
+    std::unordered_set<JBoxComponent*> ColliderTarget;
+    std::unordered_set<SimpleRayComponent*> RayCollider; 
     
     std::vector<std::vector<Ptr<Node>>> mGridGraph;
     std::vector<Ptr<Nav::Node>> tempPath;

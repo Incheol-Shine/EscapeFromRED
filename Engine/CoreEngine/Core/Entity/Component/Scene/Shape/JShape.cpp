@@ -3,6 +3,11 @@
 #include "Core/Graphics/Mesh/MMeshManager.h"
 #include "Core/Graphics/Vertex/XTKPrimitiveBatch.h"
 
+void FRay::DrawDebug(DirectX::GXMVECTOR InColor)
+{
+	G_DebugBatch.DrawRay_Implement(Origin, Length * Direction, false, InColor);
+}
+
 void FPlane::CreatePlane(FVector InNormal, FVector InPoint)
 {
 	InNormal.Normalize();
@@ -103,6 +108,38 @@ void FBoxShape::DrawDebug() const
 	// 월드 행렬 결합
 	XMMATRIX mat = scaleMatrix * rotationMatrix * translationMatrix;
 	G_DebugBatch.DrawCube_Implement(mat, Colors::Green);
+}
+
+void FBoxShape::DrawDebug(DirectX::GXMVECTOR InVector)
+{
+	// 스케일 행렬
+	XMMATRIX scaleMatrix = XMMatrixScaling(Box.Extent.x, Box.Extent.y, Box.Extent.z);
+
+	XMMATRIX rotationMatrix = XMMATRIX(
+									   Box.LocalAxis[0].x,
+									   Box.LocalAxis[0].y,
+									   Box.LocalAxis[0].z,
+									   0.0f,  // X 축
+									   Box.LocalAxis[1].x,
+									   Box.LocalAxis[1].y,
+									   Box.LocalAxis[1].z,
+									   0.0f,  // Y 축
+									   Box.LocalAxis[2].x,
+									   Box.LocalAxis[2].y,
+									   Box.LocalAxis[2].z,
+									   0.0f,  // Z 축
+									   0.0f,
+									   0.0f,
+									   0.0f,
+									   1.0f   // W 축
+									  );
+
+	// 위치 행렬
+	XMMATRIX translationMatrix = XMMatrixTranslation(Box.Center.x, Box.Center.y, Box.Center.z);
+
+	// 월드 행렬 결합
+	XMMATRIX mat = scaleMatrix * rotationMatrix * translationMatrix;
+	G_DebugBatch.DrawCube_Implement(mat, InVector);
 }
 
 bool FBoxShape::Intersect(const FBoxShape& InBox) const
