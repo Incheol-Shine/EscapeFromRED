@@ -66,6 +66,7 @@ public:
     FVector mVelocity;
     int mPhase = 1;
     bool NeedsPathReFind = true;
+    float mFloorHeight = 0.f;
 
 private:
     FORCEINLINE bool IsKeyPressed(EKeyCode InKey) const { return mInputKeyboard.IsKeyPressed(InKey); }

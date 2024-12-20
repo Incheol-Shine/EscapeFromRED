@@ -53,6 +53,7 @@ public:
     int ObstacleScale  = 1;
     JTexture* MapFile;
     std::unordered_set<JBoxComponent*> ColliderTarget;
+    std::unordered_set<JBoxComponent*> GroundColliders;
     std::unordered_set<SimpleRayComponent*> RayCollider; 
     
     std::vector<std::vector<Ptr<Node>>> mGridGraph;

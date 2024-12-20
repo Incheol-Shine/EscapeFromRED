@@ -223,9 +223,16 @@ public:
 	bool IsIntersectOBB(const JBoxComponent& OtherBoxComp);
 	bool IsIntersect(const FBoxShape& OtherBox);
 	bool IsIntersect(const FRay& InRay);
+	bool IsIntersectOBB(const FRay& InRay);
 
 	void HandleCollision(const JBoxComponent& OtherBoxComp, float DeltaTime);
 
+public:
+	float CRayOffset = 30.f;
+	FVector RayOrigin = FVector::ZeroVector;
+	FVector RayDir = FVector(0, -1, 0);
+	float GroundHeight = 0.f;
+	
 private:
 	FVector4 mColor = {0,0,1,1};
 };

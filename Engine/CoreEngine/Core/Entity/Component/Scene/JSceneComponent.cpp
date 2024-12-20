@@ -456,22 +456,37 @@ void JBoxComponent::Tick(float DeltaTime)
 
     mBoundingBox.Box.Center = mWorldLocation;
 
+    RayOrigin = mOwnerActor->GetWorldLocation() + FVector(0, CRayOffset, 0);
+
     for (auto collider : NAV_MAP.ColliderTarget)
     {
         if (collider != this)
         {
-            if (IsIntersect(*collider))
+            if (IsIntersectOBB(*collider))
             {
-                // std::cout << "AABB collision" << std::endl;
-                HandleCollision(*collider, DeltaTime);
+                LOG_CORE_TRACE("<충돌> {} < ---- > {}");
+                // HandleCollision(*collider, DeltaTime);
             }
-            // else
-            // {
-            //     std::cout << "No" << std::endl;
-            // }
+            else
+            {
+                LOG_CORE_TRACE("No");
+            }
         }
     }
 
+    FRay TempRay(RayOrigin, RayDir);
+    for (auto plane : NAV_MAP.GroundColliders)
+    {
+        float tempHeight = 0.f;
+        if (plane)
+        {
+            if (RayIntersectAABB(TempRay, plane->mBoundingBox, tempHeight))
+            {
+                GroundHeight = tempHeight;
+            }
+        }
+    }
+    
     for (auto ray : NAV_MAP.RayCollider)
     {
         if (ray)
@@ -571,44 +586,8 @@ bool JBoxComponent::IsIntersect(const FBoxShape& OtherBox)
 //
 bool JBoxComponent::IsIntersect(const FRay& InRay)
 {
-    float tNear = 0;
-    float tFar = std::numeric_limits<float>::infinity();
-
-    const auto boxMin = mBoundingBox.Box.Center - mBoundingBox.Box.Extent;
-    const auto boxMax = mBoundingBox.Box.Center + mBoundingBox.Box.Extent;
-
-    for (int i = 0; i < 3; ++i)
-    {
-        float t1, t2;
-        float rayDirection = (i == 0) ? InRay.Direction.x : (i == 1) ? InRay.Direction.y : InRay.Direction.z;
-        float rayOrigin = (i == 0) ? InRay.Origin.x : (i == 1) ? InRay.Origin.y : InRay.Origin.z;
-        float aabbMin = (i == 0) ? boxMin.x : (i == 1) ? boxMin.y : boxMin.z;
-        float aabbMax = (i == 0) ? boxMax.x : (i == 1) ? boxMax.y : boxMax.z;
-
-        // Ray가 평행한 경우
-        if (std::fabs(rayDirection) < 1e-6f)
-        {
-            // Ray의 시작점이 경계 안에 없으면 충돌 없음
-            if (rayOrigin < aabbMin || rayOrigin > aabbMax) return false;
-            continue;
-        }
-
-        // 슬랩 경계와의 교차 시간 계산
-        t1 = (aabbMin - rayOrigin) / rayDirection;
-        t2 = (aabbMax - rayOrigin) / rayDirection;
-
-        // t1과 t2 정렬
-        if (t1 > t2) std::swap(t1, t2);
-
-        // tNear와 tFar 갱신
-        tNear = FMath::Max(tNear, t1);
-        tFar = FMath::Min(tFar, t2);
-
-        // 교차 구간이 없으면 충돌 없음
-        if (tNear > tFar) return false;
-    }
-
-    return true;
+    FVector OutT = FVector::ZeroVector;
+    return RayIntersectOBB(InRay, mBoundingBox, OutT);
 }
 
 
@@ -627,8 +606,10 @@ void SimpleRayComponent::Tick(float DeltaTime)
     JSceneComponent::Tick(DeltaTime);
 
     mRay.Origin = mWorldLocation;
-    // mRay.Direction = mWorldLocation;
-    mRay.Direction = FVector(0,-1,0);
+    FVector TempDirection = FVector(0,-1,0);
+    mRay.Direction.x = TempDirection.Dot({mOwnerActor->GetWorldMatrix()._11, mOwnerActor->GetWorldMatrix()._21, mOwnerActor->GetWorldMatrix()._31});
+    mRay.Direction.y = TempDirection.Dot({mOwnerActor->GetWorldMatrix()._12, mOwnerActor->GetWorldMatrix()._22, mOwnerActor->GetWorldMatrix()._32});
+    mRay.Direction.z = TempDirection.Dot({mOwnerActor->GetWorldMatrix()._13, mOwnerActor->GetWorldMatrix()._23, mOwnerActor->GetWorldMatrix()._33});
 }
 
 void SimpleRayComponent::Draw()

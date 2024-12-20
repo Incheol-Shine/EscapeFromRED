@@ -222,7 +222,7 @@ bool FBoxShape::IntersectOBB(const FBoxShape& InBox) const
 		}
 	}
 
-	return false;
+	return true;
 }
 
 bool FBoxShape::Contains(const FVector& InPoint) const

@@ -33,6 +33,8 @@ void BT_BOSS::Tick(float DeltaTime)
     BBTick();
     mDeltaTime = DeltaTime;
     mInputKeyboard.Update(DeltaTime);
+    JSceneComponent* Collider = mOwnerActor->GetChildSceneComponentByName("123123");
+    mFloorHeight = static_cast<JBoxComponent*>(Collider)->GroundHeight;
     BTRoot->tick();
 }
 

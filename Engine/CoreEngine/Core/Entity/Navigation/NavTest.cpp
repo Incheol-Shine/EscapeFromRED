@@ -74,6 +74,13 @@ void NavTest::Update(float DeltaTime)
             ColliderTarget.insert(collider);
         }
 
+        JSceneComponent* planeCollider = actor.get()->GetChildSceneComponentByName("BoxCollider");
+        if (firstRun && planeCollider)
+        {
+            JBoxComponent* collider = static_cast<JBoxComponent*>(planeCollider);
+            GroundColliders.insert(collider);
+        }
+        
         if (firstRun && actor.get()->GetName().starts_with("Cone"))
         {
             static int32_t rayNum = 0;
