@@ -25,6 +25,8 @@ void NavTest::Initialize()
                             GridCenter.z + GridWorldSize.y/2);
     ObstacleScale = 50 / NodeRadius;
 
+    SubGridDivs = FVector2(50, 50);
+
     
     for (int row = 0; row < GridDivs.y; row++)
     {
@@ -37,10 +39,13 @@ void NavTest::Initialize()
         }
     }
     SetGraph();
+    // FVector2 InitPlayerGrid = GridFromWorldPoint(PlayerPos);
+    // CreateDynamicMapper(mGridGraph, InitPlayerGrid.y, InitPlayerGrid.x);
 }
 
 void NavTest::Update(float DeltaTime)
 {
+    currentFrame++;
     for(auto& actor : GetWorld.LevelManager->GetActiveLevel()->mActors)
     {
         /*if (firstRun && actor.get()->GetName().starts_with("S"))
@@ -64,13 +69,14 @@ void NavTest::Update(float DeltaTime)
         {
             static int32_t enemyNum = 0;
             JText enemyCompName = std::format("Enemy_{}", enemyNum++);
-            actor.get()->CreateDefaultSubObject<BT_BOSS>(enemyCompName);
+            actor.get()->CreateDefaultSubObject<BT_BOSS>(enemyCompName, enemyNum -1);
         }
 
         JSceneComponent* boxCollider = actor.get()->GetChildSceneComponentByName("123123");
         if (firstRun && boxCollider)
         {
         	JBoxComponent* collider = static_cast<JBoxComponent*>(boxCollider);
+            collider->IsNPC = true;
             ColliderTarget.insert(collider);
         }
 
@@ -231,4 +237,25 @@ void NavTest::LoadMapFile(const JText& FileName)
     MapFile = new JTexture(FileName, true);
     // MapFile = MakePtr<JTexture>(FileName, true).get();
 }
+
+// void NavTest::CreateDynamicMapper(const std::vector<std::vector<Ptr<Node>>>& mGridGraph, int playerRow, int playerCol)
+// {
+//     int startRow = FMath::Max(0, playerRow - static_cast<int>(SubGridDivs.y) / 2);
+//     int startCol = FMath::Max(0, playerCol - static_cast<int>(SubGridDivs.x) / 2);
+//
+//     int endRow = startRow + static_cast<int>(SubGridDivs.y);
+//     int endCol = startCol + static_cast<int>(SubGridDivs.x);
+//
+//     // 동적 매핑 함수 정의
+//     GetNodeInSubGrid = [&mGridGraph, startRow, startCol, endRow, endCol](int row, int col) -> Node* {
+//         int globalRow = startRow + row;
+//         int globalCol = startCol + col;
+//
+//         // **범위 검사 추가**
+//         if (globalRow < startRow || globalRow >= endRow || globalCol < startCol || globalCol >= endCol)
+//             return nullptr; // 범위 밖이면 nullptr 반환
+//
+//         return mGridGraph[globalRow][globalCol].get();
+//     };
+// }
 

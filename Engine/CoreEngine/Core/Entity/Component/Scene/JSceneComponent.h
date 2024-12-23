@@ -221,17 +221,20 @@ public:
 public:
 	bool IsIntersect(const JBoxComponent& OtherBoxComp);
 	bool IsIntersectOBB(const JBoxComponent& OtherBoxComp);
+	bool IsIntersectOBB(const JBoxComponent& OtherBoxComp, FVector& CollisionNormal, float& CollisionDepth);
 	bool IsIntersect(const FBoxShape& OtherBox);
-	bool IsIntersect(const FRay& InRay);
+	bool IsIntersect(const FRay& InRay, FVector& OutT);
 	bool IsIntersectOBB(const FRay& InRay);
 
-	void HandleCollision(const JBoxComponent& OtherBoxComp, float DeltaTime);
+	void HandleCollisionAABB(const JBoxComponent& OtherBoxComp, float DeltaTime);
+	void HandleCollision(const JBoxComponent& OtherBoxComp, FVector normal, float depth, float DeltaTime);
 
 public:
 	float CRayOffset = 30.f;
 	FVector RayOrigin = FVector::ZeroVector;
 	FVector RayDir = FVector(0, -1, 0);
 	float GroundHeight = 0.f;
+	bool IsNPC = false;
 	
 private:
 	FVector4 mColor = {0,0,1,1};

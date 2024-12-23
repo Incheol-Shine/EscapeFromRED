@@ -225,6 +225,93 @@ bool FBoxShape::IntersectOBB(const FBoxShape& InBox) const
 	return true;
 }
 
+bool FBoxShape::IntersectOBB(const FBoxShape& InBox, FVector& CollisionNormal, float& CollisionDepth) const
+{
+    FVector T = Box.Center - InBox.Box.Center; // 두 OBB의 중심 거리 벡터
+
+    const FVector* AxisA = Box.LocalAxis;     // A의 로컬 축
+    const FVector* AxisB = InBox.Box.LocalAxis; // B의 로컬 축
+
+    const FVector ExtentA = Box.Extent;       // A의 Extent
+    const FVector ExtentB = InBox.Box.Extent; // B의 Extent
+
+    FVector CrossAxis[3][3];
+    CollisionDepth = FLT_MAX; // 초기화
+
+    // 축 간의 교차 외적 저장
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            CrossAxis[i][j] = AxisA[i].Cross(AxisB[j]);
+        }
+    }
+
+    // Helper: 투영 함수
+    auto project = [](const FVector& Axis, const FVector& Extent, const FVector LocalAxis[3]) -> float {
+        return fabs(Extent.x * Axis.Dot(LocalAxis[0])) +
+               fabs(Extent.y * Axis.Dot(LocalAxis[1])) +
+               fabs(Extent.z * Axis.Dot(LocalAxis[2]));
+    };
+
+    // SAT 검사
+    for (int i = 0; i < 3; ++i)
+    {
+        // A의 로컬 축
+        float Distance = fabs(T.Dot(AxisA[i]));
+        float ProjA = ExtentA[i];
+        float ProjB = project(AxisA[i], ExtentB, AxisB);
+
+        if (Distance > ProjA + ProjB) return false;
+
+        if (CollisionDepth > ProjA + ProjB - Distance)
+        {
+            CollisionNormal = (T.Dot(AxisA[i]) < 0) ? AxisA[i] : -AxisA[i];
+            CollisionDepth = ProjA + ProjB - Distance;
+        }
+
+        // B의 로컬 축
+        Distance = fabs(T.Dot(AxisB[i]));
+        ProjA = project(AxisB[i], ExtentA, AxisA);
+        ProjB = ExtentB[i];
+
+        if (Distance > ProjA + ProjB) return false;
+
+        if (CollisionDepth > ProjA + ProjB - Distance)
+        {
+            CollisionNormal = (T.Dot(AxisB[i]) < 0) ? AxisB[i] : -AxisB[i];
+            CollisionDepth = ProjA + ProjB - Distance;
+        }
+    }
+
+    // A와 B의 축 간 교차 검사
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            const FVector& Axis = CrossAxis[i][j];
+            if (Axis.LengthSquared() < M_KINDA_SMALL_NUMBER)
+                continue; // 축이 너무 작으면 무시
+
+            FVector NormalizedAxis;
+        	Axis.Normalize(NormalizedAxis);
+            float Distance = fabs(T.Dot(NormalizedAxis));
+            float ProjA = project(NormalizedAxis, ExtentA, AxisA);
+            float ProjB = project(NormalizedAxis, ExtentB, AxisB);
+
+            if (Distance > ProjA + ProjB) return false;
+
+            if (CollisionDepth > ProjA + ProjB - Distance)
+            {
+                CollisionNormal = (T.Dot(NormalizedAxis) < 0) ? NormalizedAxis : -NormalizedAxis;
+                CollisionDepth = ProjA + ProjB - Distance;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool FBoxShape::Contains(const FVector& InPoint) const
 {
 	return Box.Contains(InPoint);

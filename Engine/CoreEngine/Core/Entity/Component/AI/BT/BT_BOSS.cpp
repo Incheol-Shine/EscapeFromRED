@@ -12,11 +12,12 @@
 #define MAG 0.01f
 #define LAMBDA(func, ...) [this]() -> NodeStatus { return func(__VA_ARGS__); }
 
-BT_BOSS::BT_BOSS(JTextView InName): JActorComponent(InName)
+BT_BOSS::BT_BOSS(JTextView InName, int Index): JActorComponent(InName)
 {
+    mIdx = Index;
     mInputKeyboard.Initialize();
     PaStar = MakePtr<AStar>();
-    SetupTree2();
+    SetupTree();
 }
 
 BT_BOSS::~BT_BOSS(){}
@@ -31,8 +32,8 @@ void BT_BOSS::Tick(float DeltaTime)
 {
     JActorComponent::Tick(DeltaTime);
     BBTick();
-    mDeltaTime = DeltaTime;
     mInputKeyboard.Update(DeltaTime);
+    mDeltaTime = DeltaTime;
     JSceneComponent* Collider = mOwnerActor->GetChildSceneComponentByName("123123");
     mFloorHeight = static_cast<JBoxComponent*>(Collider)->GroundHeight;
     BTRoot->tick();
@@ -51,9 +52,9 @@ void BT_BOSS::BBTick()
 NodeStatus BT_BOSS::Attack()
 {
     FVector rotation = mOwnerActor->GetLocalRotation();
-    rotation.y += mDeltaTime * PaStar->mRotateSpeed * 50;
+    rotation.y += mDeltaTime * PaStar->mRotateSpeed * 100;
     mOwnerActor->SetLocalRotation(rotation);
-    if (mElapsedTime > 1)
+    if (mElapsedTime > 0.5)
     {
         mElapsedTime = 0;
         return NodeStatus::Success;   
@@ -106,9 +107,9 @@ NodeStatus BT_BOSS::JumpAttack()
     mOwnerActor->SetLocalRotation(rotation);
 
     // 바닥 충돌 처리 (y축이 0 이하로 내려가지 않도록)
-    if (position.y < 100.0f)
+    if (position.y < mFloorHeight)
     {
-        position.y = 100.0f;
+        position.y = mFloorHeight;
         mOwnerActor->SetWorldLocation(position);
         mVelocity.y = 0.0f; // 점프 종료
         mEventStartFlag = true;
@@ -175,30 +176,27 @@ NodeStatus BT_BOSS::Dead()
     }
 }
 
-NodeStatus BT_BOSS::StopChase2()
-{
-    BB.Flag = false;
-    std::cout << "Stop Chase" << std::endl;
-    return NodeStatus::Success;
-}
-
 NodeStatus BT_BOSS::ChasePlayer(UINT N)
 {
     FVector2 playerGrid = NAV_MAP.GridFromWorldPoint(NAV_MAP.PlayerPos);
     FVector2 npcGrid = NAV_MAP.GridFromWorldPoint(mOwnerActor->GetWorldLocation());
-    
-    if ((playerGrid - NAV_MAP.GridFromWorldPoint(NewPlayerPos)).GetLength() >= 1.5 ||
-        NeedsPathReFind)
-        /*(PaStar->mPath->lookPoints.at(PaStar->mPathIdx)->GridPos - NAV_MAP.GridFromWorldPoint(mOwnerActor->GetWorldLocation())).GetLength() >= 1.5)*/
+
+    int frameIdx = NAV_MAP.currentFrame % NAV_MAP.ColliderTarget.size();
+    if (frameIdx == mIdx)
     {
-        NewPlayerPos = NAV_MAP.PlayerPos;
-        if (NAV_MAP.mGridGraph[playerGrid.y][playerGrid.x]->Walkable)
+        if ((playerGrid - NAV_MAP.GridFromWorldPoint(LastPlayerPos)).GetLength() >= 1.5 ||
+            NeedsPathReFind)
+            /*(PaStar->mPath->lookPoints.at(PaStar->mPathIdx)->GridPos - NAV_MAP.GridFromWorldPoint(mOwnerActor->GetWorldLocation())).GetLength() >= 1.5)*/
         {
-            PaStar->FindPath(NAV_MAP.mGridGraph.at(npcGrid.y).at(npcGrid.x),
-            NAV_MAP.mGridGraph.at(playerGrid.y).at(playerGrid.x), 2);
-            NeedsPathReFind = false;
-            // PaStar->mSpeed = FMath::GenerateRandomFloat(300, 800);
-            PaStar->mSpeed = 300.f;
+            LastPlayerPos = NAV_MAP.PlayerPos;
+            if (NAV_MAP.mGridGraph[playerGrid.y][playerGrid.x]->Walkable)
+            {
+                PaStar->FindPath(NAV_MAP.mGridGraph.at(npcGrid.y).at(npcGrid.x),
+                NAV_MAP.mGridGraph.at(playerGrid.y).at(playerGrid.x), 2);
+                NeedsPathReFind = false;
+                // PaStar->mSpeed = FMath::GenerateRandomFloat(300, 800);
+                PaStar->mSpeed = 300.f;
+            }
         }
     }
     if (PaStar->mPath)
@@ -228,7 +226,7 @@ void BT_BOSS::FollowPath()
 {
     FVector NextPos = PaStar->mPath->lookPoints.at(PaStar->mPathIdx)->WorldPos;
     FVector currentPos = mOwnerActor->GetWorldLocation();
-    FVector direction = FVector(NextPos.x - currentPos.x, NextPos.y - currentPos.y, NextPos.z - currentPos.z);
+    FVector direction = FVector(NextPos.x - currentPos.x, mFloorHeight - currentPos.y, NextPos.z - currentPos.z);
     if (PaStar->mPath->turnBoundaries.at(PaStar->mPathIdx)->HasCrossedLine(Path::V3ToV2(currentPos)))
     {
         PaStar->mPathIdx++;
@@ -245,7 +243,9 @@ void BT_BOSS::FollowPath()
         float rotationRadians = rotation.y * M_PI / 180.0f;
         velocity += FVector(-sin(rotationRadians), direction.y / 100, -cos(rotationRadians));
         velocity *= PaStar->mSpeed * mDeltaTime;
-        mOwnerActor->SetWorldLocation(currentPos + velocity);
+        FVector resultPos = currentPos + velocity;
+        // resultPos.y = mFloorHeight;
+        mOwnerActor->SetWorldLocation(resultPos);
         
         // auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
         // G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
@@ -341,14 +341,14 @@ void BT_BOSS::SetupTree()
                 .AddDecorator(LAMBDA(IsPhase, 1))
                     .AddSelector("")
                         .AddDecorator(LAMBDA(IsPressedKey, EKeyCode::Space))
-                            .AddActionNode(LAMBDA(Hit))
+                            .AddActionNode(LAMBDA(JumpAttack))
                         .EndBranch()
                         .AddDecorator(LAMBDA(IsPressedKey, EKeyCode::V))
                             .AddActionNode(LAMBDA(Dead))
                         .EndBranch()
-                        // .AddDecorator(LAMBDA(RandP, 0.0005f))
-                        //     .AddActionNode(LAMBDA(JumpAttack))
-                        // .EndBranch()
+                        .AddDecorator(LAMBDA(RandP, 0.005f))
+                            .AddActionNode(LAMBDA(JumpAttack))
+                        .EndBranch()
                         .AddSequence("")
                             .AddActionNode(LAMBDA(ChasePlayer, 0))
 #pragma region Attak
@@ -398,9 +398,14 @@ void BT_BOSS::SetupTree()
 void BT_BOSS::SetupTree2()
 {
     BTRoot = builder
-            .CreateRoot<Sequence>()
-                // .AddActionNode(LAMBDA(IsPressedKey, EKeyCode::Space))
-                // .AddActionNode(LAMBDA(ChasePlayer, 0))
-                // .AddActionNode(LAMBDA(Attack))
+            .CreateRoot<Selector>()
+                .AddDecorator(LAMBDA(IsPressedKey, EKeyCode::Space))
+                    .AddActionNode(LAMBDA(JumpAttack))
+                .EndBranch()
+                .AddSequence("")
+                    .AddActionNode(LAMBDA(IsPressedKey, EKeyCode::V))
+                    .AddActionNode(LAMBDA(ChasePlayer, 0))
+                    .AddActionNode(LAMBDA(Attack))
+                .EndBranch()
             .Build();
 }

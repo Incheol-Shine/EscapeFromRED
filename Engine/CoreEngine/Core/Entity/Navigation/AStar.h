@@ -24,14 +24,14 @@ public:
     AStar();
     ~AStar();
     
-    void FindPath(Ptr<Nav::Node> Start, Ptr<Nav::Node> Target, float Weight);
+    bool FindPath(Ptr<Nav::Node> Start, Ptr<Nav::Node> Target, float Weight);
     int GetDistance(Ptr<Nav::Node> A, Ptr<Nav::Node> B);
     void RetracePath(Ptr<Nav::Node> Start, Ptr<Nav::Node> Target);
     std::vector<Ptr<Nav::Node>> simplifyPath(const std::vector<Ptr<Nav::Node>> &path);
     bool IsLineBlocked(FVector2 prevGrid, FVector2 nextGrid);
 
     float mSpeed = 7;
-    float mRotateSpeed = 25;
+    float mRotateSpeed = 5;
     float TurnDst = 1;
     bool IsPosUpdated = false;
     FVector NewPlayerPos = FVector::ZeroVector;

@@ -8,12 +8,7 @@
 
 struct BlackBoard
 {
-    float Distance;
-    FVector Direction;
-    Timer Timer;
-    UINT RandIndex;
-    bool Flag = false;
-    bool NeedsPathUpdate = false;
+    
 };
 
 class AStar;
@@ -22,7 +17,7 @@ class BT_BOSS : public JActorComponent,
                 public std::enable_shared_from_this<BT_BOSS>
 {
 public:
-    BT_BOSS(JTextView InName);
+    BT_BOSS(JTextView InName, int Index);
     ~BT_BOSS() override;
 
     void Initialize() override;
@@ -42,7 +37,6 @@ public:
     void MoveNPCWithJump(float jumpHeight, float duration);
     NodeStatus Hit();
     NodeStatus Dead();
-    NodeStatus StopChase2();
     NodeStatus ChasePlayer(const UINT N);
     void FollowPath();
     
@@ -56,17 +50,18 @@ public:
     // Just Function
     FVector RotateTowards(FVector direction, FVector rotation);
 public:
-    BlackBoard BB;
+    // BlackBoard BB;
     Ptr<AStar> PaStar;
     float mDeltaTime;
-    FVector NewPlayerPos = FVector(-201, 0, 201);
+    FVector LastPlayerPos = FVector(-201, 0, 201);
     bool mIsPosUpdated = false;
     float mElapsedTime = 0;
     bool mEventStartFlag = true;
     FVector mVelocity;
     int mPhase = 1;
     bool NeedsPathReFind = true;
-    float mFloorHeight = 0.f;
+    float mFloorHeight = 1.f;
+    int mIdx;
 
 private:
     FORCEINLINE bool IsKeyPressed(EKeyCode InKey) const { return mInputKeyboard.IsKeyPressed(InKey); }

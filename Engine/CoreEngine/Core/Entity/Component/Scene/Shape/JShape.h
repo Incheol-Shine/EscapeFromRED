@@ -60,6 +60,7 @@ struct FBoxShape
 
     bool Intersect(const FBoxShape& InBox) const;
     bool IntersectOBB(const FBoxShape& InBox) const;
+    bool IntersectOBB(const FBoxShape& InBox,  FVector& CollisionNormal, float& CollistionDepth) const;
     bool Contains(const FVector& InPoint) const;
 
     FBoxShape() = default;

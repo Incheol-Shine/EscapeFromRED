@@ -10,6 +10,7 @@
 #include "Core/Interface/JWorld.h"
 
 #include "Core/Utils/Math/Vector2.h"
+#define MAX_GCOST 400
 
 AStar::AStar()
 {
@@ -20,12 +21,12 @@ AStar::~AStar()
 {
 }
 
-void AStar::FindPath(Ptr<Node> Start, Ptr<Node> Target, float Weight)
+bool AStar::FindPath(Ptr<Node> Start, Ptr<Node> Target, float Weight)
 {
     Nav::Node::weight = Weight;
-    // PriorityQueue openSet;
     std::vector<Ptr<Node>> openSet;
     UnOrdSet closedSet;
+    Start->GCost = 0;
     openSet.push_back(Start);
     std::push_heap(openSet.begin(), openSet.end(), CompareNode());
 
@@ -38,29 +39,40 @@ void AStar::FindPath(Ptr<Node> Start, Ptr<Node> Target, float Weight)
         if (current == Target)
         {
             RetracePath(Start, Target);
-            return;
+            return true;
         }
         for (auto child : current->Children)
         {
-            if (closedSet.find(child.lock()) != closedSet.end())
+            Ptr<Node> childNode = child.lock();
+            if (!childNode) continue;
+            if (closedSet.find(childNode) != closedSet.end())
                 continue;
-            int newMoveCostToChild = current->GCost + GetDistance(current, child.lock());
-            if (newMoveCostToChild < child.lock()->GCost)
+            if (current->GCost > MAX_GCOST)
             {
-                child.lock()->GCost = newMoveCostToChild;
-                child.lock()->HCost = GetDistance(current, Target);
-                child.lock()->Parent = current;
+                std::vector<Ptr<Nav::Node>> TempPath;
+                TempPath.push_back(Target);
+                mPath = MakePtr<Path>(simplifyPath(TempPath), Start->WorldPos, TurnDst);
+                mPathIdx = 1;
+                return false;
             }
-            if (std::find(openSet.begin(), openSet.end(), child.lock()) == openSet.end())
+            int newMoveCostToChild = current->GCost + GetDistance(current, childNode);
+            if (newMoveCostToChild < childNode->GCost)
             {
-                child.lock()->GCost = newMoveCostToChild;
-                child.lock()->HCost = GetDistance(current, Target);
-                child.lock()->Parent = current;
-                openSet.push_back(child.lock());
+                childNode->GCost = newMoveCostToChild;
+                childNode->HCost = GetDistance(current, Target);
+                childNode->Parent = current;
+            }
+            if (std::find(openSet.begin(), openSet.end(), childNode) == openSet.end())
+            {
+                childNode->GCost = newMoveCostToChild;
+                childNode->HCost = GetDistance(current, Target);
+                childNode->Parent = current;
+                openSet.push_back(childNode);
                 std::push_heap(openSet.begin(), openSet.end(), CompareNode());
             }
         }
     }
+    return false;
 }
 
 int AStar::GetDistance(Ptr<Node> A, Ptr<Node> B)
@@ -83,7 +95,6 @@ void AStar::RetracePath(Ptr<Node> Start, Ptr<Node> Target)
     }
     std::reverse(TempPath.begin(), TempPath.end());
     mPath = MakePtr<Path>(simplifyPath(TempPath), Start->WorldPos, TurnDst);
-    // mPath = MakePtr<Path>(TempPath, Start->WorldPos, TurnDst);
     mPathIdx = 1;
 }
 

@@ -33,7 +33,7 @@ public:
     void DrawUnWalkable();
     void LoadMapFile(const JText& FileName);
     
-    FVector PlayerPos;
+    FVector PlayerPos = FVector::ZeroVector;
     FVector NewPPos;
     FVector NpcPos;
     // FVector NewNPos;
@@ -46,17 +46,28 @@ public:
     FVector NodeCenter;
     float NodeDiameter;
     FVector2 GridDivs;
+    FVector2 SubGridDivs;
     FVector2 NodeScale;
     FVector GridCenter = FVector::ZeroVector;
     FVector GridTopLeft = FVector::ZeroVector;
     bool firstRun = true;
     int ObstacleScale  = 1;
     JTexture* MapFile;
+
+    long long currentFrame = 0;
+    
     std::unordered_set<JBoxComponent*> ColliderTarget;
     std::unordered_set<JBoxComponent*> GroundColliders;
     std::unordered_set<SimpleRayComponent*> RayCollider; 
     
     std::vector<std::vector<Ptr<Node>>> mGridGraph;
+    std::vector<std::vector<Node*>> mSubGrid;
     std::vector<Ptr<Nav::Node>> tempPath;
+    
+    
+    // std::function<Node*(int, int)> GetNodeInSubGrid;
+    //
+    // void CreateDynamicMapper(const std::vector<std::vector<Ptr<Node>>>& mGridGraph,
+    //                          int playerRow, int playerCol);
     
 };

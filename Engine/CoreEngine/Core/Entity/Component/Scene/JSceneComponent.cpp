@@ -458,42 +458,50 @@ void JBoxComponent::Tick(float DeltaTime)
 
     RayOrigin = mOwnerActor->GetWorldLocation() + FVector(0, CRayOffset, 0);
 
-    for (auto collider : NAV_MAP.ColliderTarget)
+    if (IsNPC)
     {
-        if (collider != this)
+        for (auto collider : NAV_MAP.ColliderTarget)
         {
-            if (IsIntersectOBB(*collider))
+            if (collider != this)
             {
-                LOG_CORE_TRACE("<충돌> {} < ---- > {}");
-                // HandleCollision(*collider, DeltaTime);
-            }
-            else
-            {
-                LOG_CORE_TRACE("No");
+                FVector normal = FVector::ZeroVector;
+                float depth = std::numeric_limits<float>::infinity();
+                if (IsIntersectOBB(*collider, normal, depth))
+                {
+                    // LOG_CORE_TRACE("<collision> {} < ---- > {}");
+                    HandleCollision(*collider, normal, depth, DeltaTime);
+                }
+                else
+                {
+                    // LOG_CORE_TRACE("No");
+                }
             }
         }
-    }
-
-    FRay TempRay(RayOrigin, RayDir);
-    for (auto plane : NAV_MAP.GroundColliders)
-    {
-        float tempHeight = 0.f;
-        if (plane)
+        FRay TempRay(RayOrigin, RayDir);
+        float MaxHeight = -1.f;
+        for (auto plane : NAV_MAP.GroundColliders)
         {
-            if (RayIntersectAABB(TempRay, plane->mBoundingBox, tempHeight))
+            FVector tempHeight = FVector::ZeroVector;
+            if (plane)
             {
-                GroundHeight = tempHeight;
+                if (RayIntersectOBB(TempRay, plane->mBoundingBox, tempHeight))
+                {
+                    MaxHeight = FMath::Max(MaxHeight, tempHeight.y);
+                }
             }
         }
+        GroundHeight = MaxHeight;
     }
-    
     for (auto ray : NAV_MAP.RayCollider)
     {
+        FVector tempHeight = FVector::ZeroVector;
         if (ray)
         {
-            if (IsIntersect(ray->mRay))
+            // if (RayIntersectAABB(ray->mRay, mBoundingBox, tempHeight))
+            if (IsIntersect(ray->mRay, tempHeight))
             {
-                LOG_CORE_TRACE("<충돌> {} < ---- > {}", ray->GetOwnerActor()->GetName(), mOwnerActor->GetName());
+                LOG_CORE_TRACE("{} {} < ---- > {}", tempHeight.y, ray->GetOwnerActor()->GetName(), mOwnerActor->GetName());
+                
             }
             else
             {
@@ -503,7 +511,7 @@ void JBoxComponent::Tick(float DeltaTime)
     }
 }
 
-void JBoxComponent::HandleCollision(const JBoxComponent& OtherBoxComp, float DeltaTime)
+void JBoxComponent::HandleCollisionAABB(const JBoxComponent& OtherBoxComp, float DeltaTime)
 {
     // return mBoundingBox.Intersect(OtherBoxComp.mBoundingBox);
     const auto otherMin = OtherBoxComp.mBoundingBox.Box.Center - OtherBoxComp.mBoundingBox.Box.Extent;
@@ -550,6 +558,20 @@ void JBoxComponent::HandleCollision(const JBoxComponent& OtherBoxComp, float Del
     OtherBoxComp.mOwnerActor->SetWorldLocation(OtherPosition + pushDirection);
 }
 
+void JBoxComponent::HandleCollision(const JBoxComponent& OtherBoxComp, FVector normal, float depth, float DeltaTime)
+{
+    // float minOverlap = FMath::Min3(overlapX, overlapY, overlapZ);
+    FVector pushDirection = normal * depth * 5;
+    
+
+    pushDirection *= DeltaTime;
+    FVector ThisPosition = mOwnerActor->GetWorldLocation();
+    FVector OtherPosition = OtherBoxComp.mOwnerActor->GetWorldLocation();
+
+    mOwnerActor->SetWorldLocation(ThisPosition - pushDirection);
+    OtherBoxComp.mOwnerActor->SetWorldLocation(OtherPosition + pushDirection);
+}
+
 void JBoxComponent::Draw()
 {
     mBoundingBox.DrawDebug(mColor);
@@ -577,6 +599,11 @@ bool JBoxComponent::IsIntersectOBB(const JBoxComponent& OtherBoxComp)
     return mBoundingBox.IntersectOBB(OtherBoxComp.mBoundingBox);
 }
 
+bool JBoxComponent::IsIntersectOBB(const JBoxComponent& OtherBoxComp, FVector& CollisionNormal, float& CollisionDepth)
+{
+    return mBoundingBox.IntersectOBB(OtherBoxComp.mBoundingBox, CollisionNormal, CollisionDepth);
+}
+
 //
 bool JBoxComponent::IsIntersect(const FBoxShape& OtherBox)
 {
@@ -584,9 +611,8 @@ bool JBoxComponent::IsIntersect(const FBoxShape& OtherBox)
 }
 
 //
-bool JBoxComponent::IsIntersect(const FRay& InRay)
+bool JBoxComponent::IsIntersect(const FRay& InRay, FVector& OutT)
 {
-    FVector OutT = FVector::ZeroVector;
     return RayIntersectOBB(InRay, mBoundingBox, OutT);
 }
 
