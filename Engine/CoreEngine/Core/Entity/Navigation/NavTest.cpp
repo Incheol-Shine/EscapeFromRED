@@ -7,7 +7,6 @@
 #include "Core/Entity/Camera/MCameraManager.h"
 #include "Core/Interface/JWorld.h"
 #include "Core/Entity/Component/AI/BT/BT_BOSS.h"
-// #include "Core/Utils/Math/MathUtility.h"
 
 void NavTest::Initialize()
 {
@@ -23,9 +22,6 @@ void NavTest::Initialize()
     GridTopLeft = FVector(GridCenter.x - GridWorldSize.x/2,
                             GridCenter.y,
                             GridCenter.z + GridWorldSize.y/2);
-    ObstacleScale = 50 / NodeRadius;
-
-    SubGridDivs = FVector2(50, 50);
 
     
     for (int row = 0; row < GridDivs.y; row++)
@@ -39,8 +35,6 @@ void NavTest::Initialize()
         }
     }
     SetGraph();
-    // FVector2 InitPlayerGrid = GridFromWorldPoint(PlayerPos);
-    // CreateDynamicMapper(mGridGraph, InitPlayerGrid.y, InitPlayerGrid.x);
 }
 
 void NavTest::Update(float DeltaTime)
@@ -48,19 +42,6 @@ void NavTest::Update(float DeltaTime)
     currentFrame++;
     for(auto& actor : GetWorld.LevelManager->GetActiveLevel()->mActors)
     {
-        /*if (firstRun && actor.get()->GetName().starts_with("S"))
-        {
-            FVector worldPos = actor.get()->GetWorldLocation();
-            FVector2 targetGrid = FVector2(GridFromWorldPoint(worldPos).x, GridFromWorldPoint(worldPos).y);
-            for (int row = -ObstacleScale; row <= ObstacleScale; row++)
-            {
-                for (int col = -ObstacleScale; col <= ObstacleScale; col++)
-                {
-                    Obstacles.push_back(FVector2(targetGrid.x + col, targetGrid.y + row));
-                }
-            }
-        }
-        else */
         if (actor.get()->GetName() == "Test Player")
         {
             PlayerPos = actor.get()->GetWorldLocation();
@@ -233,29 +214,5 @@ void NavTest::DrawUnWalkable()
 
 void NavTest::LoadMapFile(const JText& FileName)
 {
-    // MapFile = GetWorld.TextureManager->Load(FileName);
     MapFile = new JTexture(FileName, true);
-    // MapFile = MakePtr<JTexture>(FileName, true).get();
 }
-
-// void NavTest::CreateDynamicMapper(const std::vector<std::vector<Ptr<Node>>>& mGridGraph, int playerRow, int playerCol)
-// {
-//     int startRow = FMath::Max(0, playerRow - static_cast<int>(SubGridDivs.y) / 2);
-//     int startCol = FMath::Max(0, playerCol - static_cast<int>(SubGridDivs.x) / 2);
-//
-//     int endRow = startRow + static_cast<int>(SubGridDivs.y);
-//     int endCol = startCol + static_cast<int>(SubGridDivs.x);
-//
-//     // 동적 매핑 함수 정의
-//     GetNodeInSubGrid = [&mGridGraph, startRow, startCol, endRow, endCol](int row, int col) -> Node* {
-//         int globalRow = startRow + row;
-//         int globalCol = startCol + col;
-//
-//         // **범위 검사 추가**
-//         if (globalRow < startRow || globalRow >= endRow || globalCol < startCol || globalCol >= endCol)
-//             return nullptr; // 범위 밖이면 nullptr 반환
-//
-//         return mGridGraph[globalRow][globalCol].get();
-//     };
-// }
-

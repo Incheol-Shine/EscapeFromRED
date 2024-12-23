@@ -51,71 +51,95 @@ void BT_BOSS::BBTick()
 
 NodeStatus BT_BOSS::Attack()
 {
-    FVector rotation = mOwnerActor->GetLocalRotation();
-    rotation.y += mDeltaTime * PaStar->mRotateSpeed * 100;
-    mOwnerActor->SetLocalRotation(rotation);
-    if (mElapsedTime > 0.5)
+    int frameIdx = NAV_MAP.currentFrame % NAV_MAP.ColliderTarget.size();
+    if (frameIdx == mIdx || runningFlag)
     {
-        mElapsedTime = 0;
-        return NodeStatus::Success;   
+        runningFlag = false;
+        FVector rotation = mOwnerActor->GetLocalRotation();
+        rotation.y += mDeltaTime * PaStar->mRotateSpeed * 100;
+        mOwnerActor->SetLocalRotation(rotation);
+        if (mElapsedTime > 0.5)
+        {
+            mElapsedTime = 0;
+            return NodeStatus::Success;   
+        }
+        else
+        {
+            mElapsedTime += mDeltaTime;
+            runningFlag = true;
+            return NodeStatus::Running;
+        }
     }
     else
-    {
-        mElapsedTime += mDeltaTime;
-        return NodeStatus::Running;
-    }
+        return NodeStatus::Failure;
 }
 
 NodeStatus BT_BOSS::Attack2()
 {
-    FVector rotation = mOwnerActor->GetLocalRotation();
-    rotation.y -= mDeltaTime * PaStar->mRotateSpeed * 20;
-    mOwnerActor->SetLocalRotation(rotation);
-    if (mElapsedTime > 1.5)
+    int frameIdx = NAV_MAP.currentFrame % NAV_MAP.ColliderTarget.size();
+    if (frameIdx == mIdx || runningFlag)
     {
-        mElapsedTime = 0;
-        return NodeStatus::Success;   
+        runningFlag = false;
+        FVector rotation = mOwnerActor->GetLocalRotation();
+        rotation.y -= mDeltaTime * PaStar->mRotateSpeed * 20;
+        mOwnerActor->SetLocalRotation(rotation);
+        if (mElapsedTime > 1.0)
+        {
+            mElapsedTime = 0;
+            return NodeStatus::Success;   
+        }
+        else
+        {
+            mElapsedTime += mDeltaTime;
+            runningFlag = true;
+            return NodeStatus::Running;
+        }
     }
     else
-    {
-        mElapsedTime += mDeltaTime;
-        return NodeStatus::Running;
-    }
+        return NodeStatus::Failure;
 }
 
 NodeStatus BT_BOSS::JumpAttack()
 {
-    NeedsPathReFind = true;
-    float speed = 2;
-    float GRAVITY = -500.f * speed * speed;
-    if (mEventStartFlag)
+    int frameIdx = NAV_MAP.currentFrame % NAV_MAP.ColliderTarget.size();
+    if (frameIdx == mIdx || runningFlag)
     {
-        MoveNPCWithJump(500.f, 2.0f / speed);
-        mEventStartFlag = false;
-    }
-    FVector position = mOwnerActor->GetWorldLocation();
-    position.x += mVelocity.x * mDeltaTime;
-    position.z += mVelocity.z * mDeltaTime;
+        runningFlag = false;
+        NeedsPathReFind = true;
+        float speed = 2;
+        float GRAVITY = -500.f * speed * speed;
+        if (mEventStartFlag)
+        {
+            MoveNPCWithJump(500.f, 2.0f / speed);
+            mEventStartFlag = false;
+        }
+        FVector position = mOwnerActor->GetWorldLocation();
+        position.x += mVelocity.x * mDeltaTime;
+        position.z += mVelocity.z * mDeltaTime;
 
-    // y축 업데이트 (중력 적용)
-    mVelocity.y += GRAVITY * mDeltaTime;
-    position.y += mVelocity.y * mDeltaTime;
+        // y축 업데이트 (중력 적용)
+        mVelocity.y += GRAVITY * mDeltaTime;
+        position.y += mVelocity.y * mDeltaTime;
 
-    mOwnerActor->SetWorldLocation(position);
-
-    FVector rotation = RotateTowards(mVelocity, mOwnerActor->GetLocalRotation());
-    mOwnerActor->SetLocalRotation(rotation);
-
-    // 바닥 충돌 처리 (y축이 0 이하로 내려가지 않도록)
-    if (position.y < mFloorHeight)
-    {
-        position.y = mFloorHeight;
         mOwnerActor->SetWorldLocation(position);
-        mVelocity.y = 0.0f; // 점프 종료
-        mEventStartFlag = true;
-        return NodeStatus::Success;
+
+        FVector rotation = RotateTowards(mVelocity, mOwnerActor->GetLocalRotation());
+        mOwnerActor->SetLocalRotation(rotation);
+
+        // 바닥 충돌 처리 (y축이 0 이하로 내려가지 않도록)
+        if (position.y < mFloorHeight)
+        {
+            position.y = mFloorHeight;
+            mOwnerActor->SetWorldLocation(position);
+            mVelocity.y = 0.0f; // 점프 종료
+            mEventStartFlag = true;
+            return NodeStatus::Success;
+        }
+        runningFlag = true;
+        return NodeStatus::Running;
     }
-    return NodeStatus::Running;
+    else
+        return NodeStatus::Failure;
 }
 
 void BT_BOSS::MoveNPCWithJump(float jumpHeight, float duration)
@@ -139,41 +163,57 @@ void BT_BOSS::MoveNPCWithJump(float jumpHeight, float duration)
 
 NodeStatus BT_BOSS::Hit()
 {
-    FVector rotation = mOwnerActor->GetLocalRotation();
-    rotation.x = 10.f;
-    mOwnerActor->SetLocalRotation(rotation);
-    if (mElapsedTime > 0.3)
+    int frameIdx = NAV_MAP.currentFrame % NAV_MAP.ColliderTarget.size();
+    if (frameIdx == mIdx || runningFlag)
     {
-        mElapsedTime = 0;
-        rotation.x = 0.f;
+        runningFlag = false;
+        FVector rotation = mOwnerActor->GetLocalRotation();
+        rotation.x = 10.f;
         mOwnerActor->SetLocalRotation(rotation);
-        return NodeStatus::Success;   
+        if (mElapsedTime > 0.3)
+        {
+            mElapsedTime = 0;
+            rotation.x = 0.f;
+            mOwnerActor->SetLocalRotation(rotation);
+            return NodeStatus::Success;   
+        }
+        else
+        {
+            mElapsedTime += mDeltaTime;
+            runningFlag = true;
+            return NodeStatus::Running;
+        }
     }
     else
-    {
-        mElapsedTime += mDeltaTime;
-        return NodeStatus::Running;
-    }
+        return NodeStatus::Failure;
 }
 
 NodeStatus BT_BOSS::Dead()
 {
-    FVector rotation = mOwnerActor->GetLocalRotation();
-    rotation.x = 90.f;
-    mOwnerActor->SetLocalRotation(rotation);
-    if (mElapsedTime > 1)
+    int frameIdx = NAV_MAP.currentFrame % NAV_MAP.ColliderTarget.size();
+    if (frameIdx == mIdx || runningFlag)
     {
-        mElapsedTime = 0;
-        rotation.x = 0.f;
+        runningFlag = false;
+        FVector rotation = mOwnerActor->GetLocalRotation();
+        rotation.x = 90.f;
         mOwnerActor->SetLocalRotation(rotation);
-        mPhase++;
-        return NodeStatus::Success;   
+        if (mElapsedTime > 1)
+        {
+            mElapsedTime = 0;
+            rotation.x = 0.f;
+            mOwnerActor->SetLocalRotation(rotation);
+            mPhase++;
+            return NodeStatus::Success;   
+        }
+        else
+        {
+            mElapsedTime += mDeltaTime;
+            runningFlag = true;
+            return NodeStatus::Running;
+        }
     }
     else
-    {
-        mElapsedTime += mDeltaTime;
-        return NodeStatus::Running;
-    }
+        return NodeStatus::Failure;
 }
 
 NodeStatus BT_BOSS::ChasePlayer(UINT N)
@@ -191,14 +231,16 @@ NodeStatus BT_BOSS::ChasePlayer(UINT N)
             LastPlayerPos = NAV_MAP.PlayerPos;
             if (NAV_MAP.mGridGraph[playerGrid.y][playerGrid.x]->Walkable)
             {
-                PaStar->FindPath(NAV_MAP.mGridGraph.at(npcGrid.y).at(npcGrid.x),
+                mHasPath = PaStar->FindPath(NAV_MAP.mGridGraph.at(npcGrid.y).at(npcGrid.x),
                 NAV_MAP.mGridGraph.at(playerGrid.y).at(playerGrid.x), 2);
                 NeedsPathReFind = false;
                 // PaStar->mSpeed = FMath::GenerateRandomFloat(300, 800);
-                PaStar->mSpeed = 300.f;
+                PaStar->mSpeed = 500.f;
             }
         }
     }
+    // if (!mHasPath)
+    //     return NodeStatus::Failure;
     if (PaStar->mPath)
     {
         std::vector<Ptr<Nav::Node>> TempPath = PaStar->mPath->lookPoints;
@@ -216,7 +258,7 @@ NodeStatus BT_BOSS::ChasePlayer(UINT N)
             FollowPath();
             return NodeStatus::Failure;
         }
-        else
+        else if ((NAV_MAP.PlayerPos - mOwnerActor->GetWorldLocation()).Length() < 200) // 플레이어와 거리가 가까울 때 success
             return NodeStatus::Success;
     }
     return NodeStatus::Failure;
@@ -230,11 +272,11 @@ void BT_BOSS::FollowPath()
     if (PaStar->mPath->turnBoundaries.at(PaStar->mPathIdx)->HasCrossedLine(Path::V3ToV2(currentPos)))
     {
         PaStar->mPathIdx++;
-        mIsPosUpdated = true;
+        // mIsPosUpdated = true;
     }
     else
     {
-        mIsPosUpdated = false;
+        // mIsPosUpdated = false;
         FVector rotation = RotateTowards(direction, mOwnerActor->GetLocalRotation());
         mOwnerActor->SetLocalRotation(rotation);
         
@@ -346,12 +388,12 @@ void BT_BOSS::SetupTree()
                         .AddDecorator(LAMBDA(IsPressedKey, EKeyCode::V))
                             .AddActionNode(LAMBDA(Dead))
                         .EndBranch()
-                        .AddDecorator(LAMBDA(RandP, 0.005f))
-                            .AddActionNode(LAMBDA(JumpAttack))
-                        .EndBranch()
+                        // .AddDecorator(LAMBDA(RandP, 0.005f))
+                        //     .AddActionNode(LAMBDA(JumpAttack))
+                        // .EndBranch()
                         .AddSequence("")
                             .AddActionNode(LAMBDA(ChasePlayer, 0))
-#pragma region Attak
+#pragma region              Attak
                             .AddSelector("")
                                 .AddDecorator(LAMBDA(RandP, 0.5f))
                                     .AddActionNode(LAMBDA(Attack))

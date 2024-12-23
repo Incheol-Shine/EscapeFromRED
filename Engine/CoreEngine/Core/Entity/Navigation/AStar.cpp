@@ -11,6 +11,7 @@
 
 #include "Core/Utils/Math/Vector2.h"
 #define MAX_GCOST 400
+#define MIN_GCOST 100
 
 AStar::AStar()
 {
@@ -39,6 +40,7 @@ bool AStar::FindPath(Ptr<Node> Start, Ptr<Node> Target, float Weight)
         if (current == Target)
         {
             RetracePath(Start, Target);
+            mLimitGCost = MAX_GCOST;
             return true;
         }
         for (auto child : current->Children)
@@ -47,12 +49,13 @@ bool AStar::FindPath(Ptr<Node> Start, Ptr<Node> Target, float Weight)
             if (!childNode) continue;
             if (closedSet.find(childNode) != closedSet.end())
                 continue;
-            if (current->GCost > MAX_GCOST)
+            if (current->GCost > mLimitGCost)
             {
-                std::vector<Ptr<Nav::Node>> TempPath;
-                TempPath.push_back(Target);
-                mPath = MakePtr<Path>(simplifyPath(TempPath), Start->WorldPos, TurnDst);
-                mPathIdx = 1;
+                mLimitGCost = MIN_GCOST;
+                // std::vector<Ptr<Nav::Node>> TempPath;
+                // TempPath.push_back(Target);
+                // mPath = MakePtr<Path>(simplifyPath(TempPath), Start->WorldPos, TurnDst);
+                // mPathIdx = 1;
                 return false;
             }
             int newMoveCostToChild = current->GCost + GetDistance(current, childNode);

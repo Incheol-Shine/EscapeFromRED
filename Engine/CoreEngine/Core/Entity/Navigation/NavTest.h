@@ -46,7 +46,6 @@ public:
     FVector NodeCenter;
     float NodeDiameter;
     FVector2 GridDivs;
-    FVector2 SubGridDivs;
     FVector2 NodeScale;
     FVector GridCenter = FVector::ZeroVector;
     FVector GridTopLeft = FVector::ZeroVector;
@@ -61,7 +60,6 @@ public:
     std::unordered_set<SimpleRayComponent*> RayCollider; 
     
     std::vector<std::vector<Ptr<Node>>> mGridGraph;
-    std::vector<std::vector<Node*>> mSubGrid;
     std::vector<Ptr<Nav::Node>> tempPath;
     
     

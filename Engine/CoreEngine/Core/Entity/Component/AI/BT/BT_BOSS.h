@@ -62,6 +62,8 @@ public:
     bool NeedsPathReFind = true;
     float mFloorHeight = 1.f;
     int mIdx;
+    bool mHasPath = false;
+    bool runningFlag = false;
 
 private:
     FORCEINLINE bool IsKeyPressed(EKeyCode InKey) const { return mInputKeyboard.IsKeyPressed(InKey); }

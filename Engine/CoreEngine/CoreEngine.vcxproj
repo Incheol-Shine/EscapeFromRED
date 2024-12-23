@@ -132,6 +132,7 @@
     <ClInclude Include="Core\Entity\Light\JLight_Point.h" />
     <ClInclude Include="Core\Entity\Light\JLight_Spot.h" />
     <ClInclude Include="Core\Entity\Navigation\AStar.h" />
+    <ClInclude Include="Core\Entity\Navigation\GridGraph.h" />
     <ClInclude Include="Core\Entity\Navigation\NavTest.h" />
     <ClInclude Include="Core\Entity\Navigation\Node.h" />
     <ClInclude Include="Core\Entity\Navigation\Path.h" />
@@ -308,6 +309,7 @@
     <ClCompile Include="Core\Entity\Light\JLight_Point.cpp" />
     <ClCompile Include="Core\Entity\Light\JLight_Spot.cpp" />
     <ClCompile Include="Core\Entity\Navigation\AStar.cpp" />
+    <ClCompile Include="Core\Entity\Navigation\GridGraph.cpp" />
     <ClCompile Include="Core\Entity\Navigation\NavTest.cpp" />
     <ClCompile Include="Core\Entity\Navigation\Node.cpp" />
     <ClCompile Include="Core\Entity\Navigation\Path.cpp" />

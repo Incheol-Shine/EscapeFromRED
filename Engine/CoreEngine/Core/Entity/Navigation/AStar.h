@@ -40,6 +40,7 @@ public:
     int mPathIdx = 1;
     AActor* mOwnerActor = nullptr;
     FVector2 obstacle = FVector2::ZeroVector;
+    int mLimitGCost = 500;
 };
 
 
