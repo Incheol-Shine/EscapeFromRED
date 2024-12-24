@@ -107,7 +107,7 @@ void FBoxShape::DrawDebug() const
 
 	// 월드 행렬 결합
 	XMMATRIX mat = scaleMatrix * rotationMatrix * translationMatrix;
-	G_DebugBatch.DrawCube_Implement(mat, Colors::Green);
+	// G_DebugBatch.DrawCube_Implement(mat, Colors::Green);
 }
 
 void FBoxShape::DrawDebug(DirectX::GXMVECTOR InVector)

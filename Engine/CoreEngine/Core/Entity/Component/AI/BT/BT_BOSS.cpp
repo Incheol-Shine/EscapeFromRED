@@ -218,24 +218,30 @@ NodeStatus BT_BOSS::Dead()
 
 NodeStatus BT_BOSS::ChasePlayer(UINT N)
 {
-    FVector2 playerGrid = NAV_MAP.GridFromWorldPoint(NAV_MAP.PlayerPos);
-    FVector2 npcGrid = NAV_MAP.GridFromWorldPoint(mOwnerActor->GetWorldLocation());
-
-    int frameIdx = NAV_MAP.currentFrame % NAV_MAP.ColliderTarget.size();
+    int frameIdx = NAV_MAP.currentFrame % NAV_MAP.ColliderTarget.size();    
     if (frameIdx == mIdx)
     {
-        if ((playerGrid - NAV_MAP.GridFromWorldPoint(LastPlayerPos)).GetLength() >= 1.5 ||
+        FVector2 playerGrid = NAV_MAP.GridFromWorldPoint(NAV_MAP.PlayerPos);
+        FVector2 npcGrid = NAV_MAP.GridFromWorldPoint(mOwnerActor->GetWorldLocation());
+        
+        Ptr<Nav::Node>& PlayerNode = (NAV_MAP.PlayerHeight < 1590.f) 
+                                    ? NAV_MAP.mGridGraph[playerGrid.y][playerGrid.x] 
+                                    : NAV_MAP.m2ndFloor[playerGrid.y][playerGrid.x];
+        Ptr<Nav::Node>& NpcNode = (mFloorHeight < 1590.f)
+                                    ? NAV_MAP.mGridGraph[npcGrid.y][npcGrid.x] 
+                                    : NAV_MAP.m2ndFloor[npcGrid.y][npcGrid.x];
+        if ((NAV_MAP.PlayerPos - LastPlayerPos).Length() >= 150 ||
             NeedsPathReFind)
             /*(PaStar->mPath->lookPoints.at(PaStar->mPathIdx)->GridPos - NAV_MAP.GridFromWorldPoint(mOwnerActor->GetWorldLocation())).GetLength() >= 1.5)*/
         {
             LastPlayerPos = NAV_MAP.PlayerPos;
             if (NAV_MAP.mGridGraph[playerGrid.y][playerGrid.x]->Walkable)
             {
-                mHasPath = PaStar->FindPath(NAV_MAP.mGridGraph.at(npcGrid.y).at(npcGrid.x),
-                NAV_MAP.mGridGraph.at(playerGrid.y).at(playerGrid.x), 2);
+                mHasPath = PaStar->FindPath(NpcNode,
+                PlayerNode, 2);
                 NeedsPathReFind = false;
                 // PaStar->mSpeed = FMath::GenerateRandomFloat(300, 800);
-                PaStar->mSpeed = 500.f;
+                PaStar->mSpeed = 300.f;
             }
         }
     }
@@ -258,7 +264,7 @@ NodeStatus BT_BOSS::ChasePlayer(UINT N)
             FollowPath();
             return NodeStatus::Failure;
         }
-        else if ((NAV_MAP.PlayerPos - mOwnerActor->GetWorldLocation()).Length() < 200) // 플레이어와 거리가 가까울 때 success
+        else if ((NAV_MAP.PlayerPos - mOwnerActor->GetWorldLocation()).Length() < 400) // 플레이어와 거리가 가까울 때 success
             return NodeStatus::Success;
     }
     return NodeStatus::Failure;
@@ -283,7 +289,7 @@ void BT_BOSS::FollowPath()
         FVector velocity = FVector::ZeroVector;
         
         float rotationRadians = rotation.y * M_PI / 180.0f;
-        velocity += FVector(-sin(rotationRadians), direction.y / 100, -cos(rotationRadians));
+        velocity += FVector(-sin(rotationRadians), direction.y / 10, -cos(rotationRadians));
         velocity *= PaStar->mSpeed * mDeltaTime;
         FVector resultPos = currentPos + velocity;
         // resultPos.y = mFloorHeight;

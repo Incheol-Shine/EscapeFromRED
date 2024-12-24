@@ -25,6 +25,7 @@ public:
     ~AStar();
     
     bool FindPath(Ptr<Nav::Node> Start, Ptr<Nav::Node> Target, float Weight);
+    int GetHeuristic(Ptr<Nav::Node> A, Ptr<Nav::Node> B);
     int GetDistance(Ptr<Nav::Node> A, Ptr<Nav::Node> B);
     void RetracePath(Ptr<Nav::Node> Start, Ptr<Nav::Node> Target);
     std::vector<Ptr<Nav::Node>> simplifyPath(const std::vector<Ptr<Nav::Node>> &path);

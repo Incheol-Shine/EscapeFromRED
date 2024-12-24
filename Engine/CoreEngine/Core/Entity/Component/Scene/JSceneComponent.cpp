@@ -354,7 +354,7 @@ JSceneComponent* JSceneComponent::GetComponentByName(const JText& InName)
 
 void JSceneComponent::UpdateTransform()
 {
-    mCachedLocalMat = mLocalMat;
+    mCachedLocalMat = mWorldMat;
 
     // Step1. 로컬 좌표 변환
     mLocalLocationMat = DirectX::XMMatrixTranslation(mLocalLocation.x, mLocalLocation.y, mLocalLocation.z);
@@ -384,7 +384,7 @@ void JSceneComponent::UpdateTransform()
     mWorldRotation = rot;
     mWorldScale = scale;
 
-    if (mCachedLocalMat != mLocalMat)
+    if (mCachedLocalMat != mWorldMat)
     {
         MarkAsDirty();
     }
@@ -478,7 +478,7 @@ void JBoxComponent::Tick(float DeltaTime)
             }
         }
         FRay TempRay(RayOrigin, RayDir);
-        float MaxHeight = -1.f;
+        float MaxHeight = 0.f;
         for (auto plane : NAV_MAP.GroundColliders)
         {
             FVector tempHeight = FVector::ZeroVector;
@@ -503,10 +503,10 @@ void JBoxComponent::Tick(float DeltaTime)
                 LOG_CORE_TRACE("{} {} < ---- > {}", tempHeight.y, ray->GetOwnerActor()->GetName(), mOwnerActor->GetName());
                 
             }
-            else
-            {
-                LOG_CORE_TRACE("<충돌 없음> ");
-            }
+            // else
+            // {
+            //     LOG_CORE_TRACE("<충돌 없음> ");
+            // }
         }
     }
 }

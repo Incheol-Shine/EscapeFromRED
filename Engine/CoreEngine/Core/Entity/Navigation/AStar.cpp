@@ -10,8 +10,8 @@
 #include "Core/Interface/JWorld.h"
 
 #include "Core/Utils/Math/Vector2.h"
-#define MAX_GCOST 400
-#define MIN_GCOST 100
+#define MAX_GCOST 1000
+#define MIN_GCOST 1000
 
 AStar::AStar()
 {
@@ -58,17 +58,17 @@ bool AStar::FindPath(Ptr<Node> Start, Ptr<Node> Target, float Weight)
                 // mPathIdx = 1;
                 return false;
             }
-            int newMoveCostToChild = current->GCost + GetDistance(current, childNode);
+            int newMoveCostToChild = current->GCost + GetHeuristic(current, childNode);
             if (newMoveCostToChild < childNode->GCost)
             {
                 childNode->GCost = newMoveCostToChild;
-                childNode->HCost = GetDistance(current, Target);
+                childNode->HCost = GetHeuristic(current, Target);
                 childNode->Parent = current;
             }
             if (std::find(openSet.begin(), openSet.end(), childNode) == openSet.end())
             {
                 childNode->GCost = newMoveCostToChild;
-                childNode->HCost = GetDistance(current, Target);
+                childNode->HCost = GetHeuristic(current, Target);
                 childNode->Parent = current;
                 openSet.push_back(childNode);
                 std::push_heap(openSet.begin(), openSet.end(), CompareNode());
@@ -76,6 +76,22 @@ bool AStar::FindPath(Ptr<Node> Start, Ptr<Node> Target, float Weight)
         }
     }
     return false;
+}
+
+int AStar::GetHeuristic(Ptr<Nav::Node> A, Ptr<Nav::Node> B)
+{
+    if (A->OwnerFloor == B->OwnerFloor)
+    {
+        return GetDistance(A, B);
+    }
+    else if (A->OwnerFloor < B->OwnerFloor) // A : npc, B : player
+    {
+        return (GetDistance(A, NAV_MAP.Stair1_2) + GetDistance(NAV_MAP.Stair2_1, B));
+    }
+    else
+    {
+        return (GetDistance(A, NAV_MAP.Stair2_1) + GetDistance(NAV_MAP.Stair1_2, B));
+    }
 }
 
 int AStar::GetDistance(Ptr<Node> A, Ptr<Node> B)

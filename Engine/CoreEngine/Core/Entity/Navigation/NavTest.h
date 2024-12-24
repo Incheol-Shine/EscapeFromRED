@@ -27,19 +27,21 @@ public:
     FVector WorldPosFromGridPos(int row, int col);
     FVector WorldPosFromGridPos(FVector2 worldGrid);
     FVector2 GridFromWorldPoint(FVector worldPos);
-    void SetGraph();
-    void SetObstacle();
-    void SetChildNode(int i, int j);
-    void DrawUnWalkable();
-    void LoadMapFile(const JText& FileName);
+    void SetGraph(std::vector<std::vector<Ptr<Node>>>& graph, EFloorType FloorType);
+    void SetObstacle(std::vector<std::vector<Ptr<Node>>>& graph, JTexture* MapFile,
+        std::vector<FVector2>& Obstacles);
+    void SetChildNode(std::vector<std::vector<Ptr<Node>>>& graph, int i, int j);
+    void DrawUnWalkable(std::vector<FVector2>& Obstacles);
     
     FVector PlayerPos = FVector::ZeroVector;
+    float PlayerHeight = 0.0f;
     FVector NewPPos;
     FVector NpcPos;
     // FVector NewNPos;
     // std::vector<FVector> Npcs;
     // std::vector<FVector> NewNpcs;
-    std::vector<FVector2> Obstacles;
+    std::vector<FVector2> FirstFloorObstacle;
+    std::vector<FVector2> SecondFloorObstacle;
     
     FVector2 GridWorldSize;
     float NodeRadius;
@@ -51,7 +53,10 @@ public:
     FVector GridTopLeft = FVector::ZeroVector;
     bool firstRun = true;
     int ObstacleScale  = 1;
-    JTexture* MapFile;
+    JTexture* FirstFloorMap;
+    JTexture* SecondFloorMap;
+    Ptr<Nav::Node> Stair1_2;
+    Ptr<Nav::Node> Stair2_1;
 
     long long currentFrame = 0;
     
@@ -60,6 +65,8 @@ public:
     std::unordered_set<SimpleRayComponent*> RayCollider; 
     
     std::vector<std::vector<Ptr<Node>>> mGridGraph;
+    std::vector<std::vector<Ptr<Node>>> m2ndFloor;
+    
     std::vector<Ptr<Nav::Node>> tempPath;
     
     

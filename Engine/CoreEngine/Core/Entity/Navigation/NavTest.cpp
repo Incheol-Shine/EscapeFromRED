@@ -10,11 +10,12 @@
 
 void NavTest::Initialize()
 {
-    LoadMapFile("rsc\\GameResource\\GridMap\\GridMap.png");
+    FirstFloorMap = new JTexture("rsc\\GameResource\\GridMap\\GridMap.png", true);
+    SecondFloorMap = new JTexture("rsc\\GameResource\\GridMap\\GridMap2.png", true);
     NodeRadius = 50.0f;
     NodeCenter = FVector(NodeRadius, 0, - NodeRadius);
     GridDivs = FVector2(200, 200);
-    GridCenter = FVector(0, 101, 0); // x, y, z
+    GridCenter = FVector(0, 800, 0); // x, y, z
     
     NodeDiameter = NodeRadius * 2.0f;
     GridWorldSize = FVector2(GridDivs.x * NodeDiameter, GridDivs.y * NodeDiameter);
@@ -22,29 +23,28 @@ void NavTest::Initialize()
     GridTopLeft = FVector(GridCenter.x - GridWorldSize.x/2,
                             GridCenter.y,
                             GridCenter.z + GridWorldSize.y/2);
-
     
-    for (int row = 0; row < GridDivs.y; row++)
-    {
-        for (int col = 0; col < GridDivs.x; col++)
-        {
-            if (MapFile->mRGBAData[row * GridDivs.x + col] > 200)
-                // mGridGraph[row][col]->Walkable = false;
-                Obstacles.push_back(FVector2(col, row));
-
-        }
-    }
-    SetGraph();
+    SetGraph(mGridGraph, EFloorType::FirstFloor);
+    SetGraph(m2ndFloor, EFloorType::SecondFloor);
+    SetObstacle(mGridGraph, FirstFloorMap, FirstFloorObstacle);
+    SetObstacle(m2ndFloor, SecondFloorMap, SecondFloorObstacle);
+    Stair1_2 = mGridGraph[131][79];
+    Stair2_1 = m2ndFloor[131][79];
+    Stair1_2->Children.push_back(Stair2_1); // stair
+    Stair2_1->Children.push_back(Stair1_2);
 }
 
 void NavTest::Update(float DeltaTime)
 {
     currentFrame++;
+    PlayerPos = GetWorld.CameraManager->GetCurrentMainCam()->GetWorldLocation();
+    PlayerHeight = PlayerPos.y;
     for(auto& actor : GetWorld.LevelManager->GetActiveLevel()->mActors)
     {
         if (actor.get()->GetName() == "Test Player")
         {
-            PlayerPos = actor.get()->GetWorldLocation();
+            // PlayerPos = actor.get()->GetWorldLocation();
+            // PlayerHeight = PlayerPos.y;
         }
         else if (firstRun && actor.get()->GetName().starts_with("SK_BigZombie"))
         {
@@ -77,10 +77,10 @@ void NavTest::Update(float DeltaTime)
             RayCollider.insert(ray);
         }
     }
+    // 이거 지우면 컴포넌트 무한 생성돼서 프레임 드랍 심해짐
     if (firstRun)
     {
         firstRun = false;
-        SetObstacle();
     }
 }
 
@@ -98,7 +98,8 @@ void NavTest::Render()
             Colors::Gray
         );
         DrawNode(GridFromWorldPoint(PlayerPos), Colors::Cyan);
-        DrawUnWalkable();
+        // DrawUnWalkable(FirstFloorObstacle);
+        DrawUnWalkable(SecondFloorObstacle);
         // for (auto grid : tempPath)
         // {
         //     DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Cyan);
@@ -123,10 +124,10 @@ void NavTest::DrawNode(FVector2 grid, FXMVECTOR InColor)
 {
     G_DebugBatch.DrawQuad_Implement(
         // tl - tr - br - bl
-        {GridTopLeft.x + grid.x * NodeDiameter, 101.1, GridTopLeft.z - grid.y * NodeDiameter},
-        {GridTopLeft.x + (grid.x + 1) * NodeDiameter, 101.1, GridTopLeft.z - grid.y * NodeDiameter},
-        {GridTopLeft.x + (grid.x + 1) * NodeDiameter, 101.1, GridTopLeft.z - (grid.y + 1) * NodeDiameter},
-        {GridTopLeft.x + grid.x * NodeDiameter, 101.1, GridTopLeft.z - (grid.y + 1) * NodeDiameter},
+        {GridTopLeft.x + grid.x * NodeDiameter, GridCenter.y + 0.1f, GridTopLeft.z - grid.y * NodeDiameter},
+        {GridTopLeft.x + (grid.x + 1) * NodeDiameter, GridCenter.y + 0.1f, GridTopLeft.z - grid.y * NodeDiameter},
+        {GridTopLeft.x + (grid.x + 1) * NodeDiameter, GridCenter.y + 0.1f, GridTopLeft.z - (grid.y + 1) * NodeDiameter},
+        {GridTopLeft.x + grid.x * NodeDiameter, GridCenter.y + 0.1f, GridTopLeft.z - (grid.y + 1) * NodeDiameter},
         InColor
     );
 }
@@ -140,8 +141,8 @@ FVector NavTest::WorldPosFromGridPos(int col, int row)
 
 FVector NavTest::WorldPosFromGridPos(FVector2 GridPos)
 {
-    int col = GridPos.x;
-    int row = GridPos.y;
+    int col = static_cast<int>(GridPos.x);
+    int row = static_cast<int>(GridPos.y);
     return WorldPosFromGridPos(col, row);
 }
 
@@ -150,42 +151,53 @@ FVector2 NavTest::GridFromWorldPoint(FVector worldPos)
     int gridX = floor((worldPos.x - GridTopLeft.x) / NodeDiameter);
     int gridY = -ceil((worldPos.z - GridTopLeft.z) / NodeDiameter);
 
-    gridX = FMath::Clamp(gridX, 0, GridDivs.x - 1);
-    gridY = FMath::Clamp(gridY, 0, GridDivs.y - 1);
+    gridX = FMath::Clamp<int>(gridX, 0, GridDivs.x - 1);
+    gridY = FMath::Clamp<int>(gridY, 0, GridDivs.y - 1);
     
     return FVector2(gridX, gridY);
 }
 
-void NavTest::SetGraph()
+void NavTest::SetGraph(std::vector<std::vector<Ptr<Node>>>& graph, EFloorType FloorType)
 {
-    mGridGraph.resize(GridDivs.y);
+    graph.resize(GridDivs.y);
     for (int row = 0; row < GridDivs.y; row++)
     {
-        mGridGraph[row].resize(GridDivs.x);
+        graph[row].resize(GridDivs.x);
         for (int col = 0; col < GridDivs.x; col++)
         {
-            mGridGraph[row][col] = MakePtr<Node>(true, WorldPosFromGridPos(col, row), col, row);
+            graph[row][col] = MakePtr<Node>(true, WorldPosFromGridPos(col, row),
+                col, row, FloorType);
         }
     }
 }
 
-void NavTest::SetObstacle()
+void NavTest::SetObstacle(std::vector<std::vector<Ptr<Node>>>& graph, JTexture* MapFile,
+    std::vector<FVector2>& Obstacles)
 {
+    for (int row = 0; row < GridDivs.y; row++)
+    {
+        for (int col = 0; col < GridDivs.x; col++)
+        {
+            if (MapFile->mRGBAData[row * GridDivs.x + col] > 200)
+                Obstacles.push_back(FVector2(col, row));
+
+        }
+    }
     for (auto node : Obstacles) // node : col, row
     {
         if (node.x >= 0 && node.x < GridDivs.x && node.y >= 0 && node.y < GridDivs.y)
-           mGridGraph[node.y][node.x]->Walkable = false;
+           graph[node.y][node.x]->Walkable = false;
     }
     for (int row = 0; row < GridDivs.y; row++)
     {
         for (int col = 0; col < GridDivs.x; col++)
         {
-            SetChildNode(row, col);
+            SetChildNode(graph, row, col);
         }
     }
 }
 
-void NavTest::SetChildNode(int row, int col)
+void NavTest::SetChildNode(std::vector<std::vector<Ptr<Node>>>& graph, int row, int col)
 {
     // if (mGridGraph[row][col]->Walkable == false)
     //     return;
@@ -198,21 +210,16 @@ void NavTest::SetChildNode(int row, int col)
     {
         if (row + node[0] >= 0 && row + node[0] < GridDivs.y && col + node[1] >= 0 && col + node[1] < GridDivs.x )
         {
-            if (mGridGraph[row + node[0]][col + node[1]]->Walkable)
-                mGridGraph[row][col]->Children.push_back(mGridGraph[row + node[0]][col + node[1]]);
+            if (graph[row + node[0]][col + node[1]]->Walkable)
+                graph[row][col]->Children.push_back(graph[row + node[0]][col + node[1]]);
         }
     }
 }
 
-void NavTest::DrawUnWalkable()
+void NavTest::DrawUnWalkable(std::vector<FVector2>& Obstacles)
 {
     for (auto location : Obstacles)
     {
         DrawNode(location, Colors::Red);
     }
-}
-
-void NavTest::LoadMapFile(const JText& FileName)
-{
-    MapFile = new JTexture(FileName, true);
 }
