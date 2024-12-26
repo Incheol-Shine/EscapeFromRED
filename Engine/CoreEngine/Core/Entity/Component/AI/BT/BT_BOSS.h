@@ -5,6 +5,7 @@
 #include "Core/Utils/Timer.h"
 #include "Core/Input/XKeyboardMouse.h"
 #include "enums.h"
+#include "Core/Entity/Navigation/Node.h"
 
 struct BlackBoard
 {
@@ -64,6 +65,7 @@ public:
     int mIdx;
     bool mHasPath = false;
     bool runningFlag = false;
+    EFloorType mFloorType = EFloorType::FirstFloor;
 
 private:
     FORCEINLINE bool IsKeyPressed(EKeyCode InKey) const { return mInputKeyboard.IsKeyPressed(InKey); }

@@ -478,7 +478,7 @@ void JBoxComponent::Tick(float DeltaTime)
             }
         }
         FRay TempRay(RayOrigin, RayDir);
-        float MaxHeight = 0.f;
+        float MaxHeight = 100.f;
         for (auto plane : NAV_MAP.GroundColliders)
         {
             FVector tempHeight = FVector::ZeroVector;

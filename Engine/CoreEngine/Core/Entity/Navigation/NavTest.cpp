@@ -28,8 +28,8 @@ void NavTest::Initialize()
     SetGraph(m2ndFloor, EFloorType::SecondFloor);
     SetObstacle(mGridGraph, FirstFloorMap, FirstFloorObstacle);
     SetObstacle(m2ndFloor, SecondFloorMap, SecondFloorObstacle);
-    Stair1_2 = mGridGraph[131][79];
-    Stair2_1 = m2ndFloor[131][79];
+    Stair1_2 = mGridGraph[132][79];
+    Stair2_1 = m2ndFloor[132][79];
     Stair1_2->Children.push_back(Stair2_1); // stair
     Stair2_1->Children.push_back(Stair1_2);
 }

@@ -17,7 +17,7 @@ BT_BOSS::BT_BOSS(JTextView InName, int Index): JActorComponent(InName)
     mIdx = Index;
     mInputKeyboard.Initialize();
     PaStar = MakePtr<AStar>();
-    SetupTree();
+    SetupTree2();
 }
 
 BT_BOSS::~BT_BOSS(){}
@@ -203,7 +203,7 @@ NodeStatus BT_BOSS::Dead()
             rotation.x = 0.f;
             mOwnerActor->SetLocalRotation(rotation);
             mPhase++;
-            return NodeStatus::Success;   
+            return NodeStatus::Success;
         }
         else
         {
@@ -224,13 +224,13 @@ NodeStatus BT_BOSS::ChasePlayer(UINT N)
         FVector2 playerGrid = NAV_MAP.GridFromWorldPoint(NAV_MAP.PlayerPos);
         FVector2 npcGrid = NAV_MAP.GridFromWorldPoint(mOwnerActor->GetWorldLocation());
         
-        Ptr<Nav::Node>& PlayerNode = (NAV_MAP.PlayerHeight < 1590.f) 
+        Ptr<Nav::Node>& PlayerNode = (NAV_MAP.PlayerHeight < 560.f) 
                                     ? NAV_MAP.mGridGraph[playerGrid.y][playerGrid.x] 
                                     : NAV_MAP.m2ndFloor[playerGrid.y][playerGrid.x];
-        Ptr<Nav::Node>& NpcNode = (mFloorHeight < 1590.f)
+        Ptr<Nav::Node>& NpcNode = (mFloorType == EFloorType::FirstFloor)
                                     ? NAV_MAP.mGridGraph[npcGrid.y][npcGrid.x] 
                                     : NAV_MAP.m2ndFloor[npcGrid.y][npcGrid.x];
-        if ((NAV_MAP.PlayerPos - LastPlayerPos).Length() >= 150 ||
+        if ((NAV_MAP.PlayerPos - LastPlayerPos).Length() >= 100 ||
             NeedsPathReFind)
             /*(PaStar->mPath->lookPoints.at(PaStar->mPathIdx)->GridPos - NAV_MAP.GridFromWorldPoint(mOwnerActor->GetWorldLocation())).GetLength() >= 1.5)*/
         {
@@ -244,7 +244,7 @@ NodeStatus BT_BOSS::ChasePlayer(UINT N)
                 PaStar->mSpeed = 300.f;
             }
         }
-    }
+    }   
     // if (!mHasPath)
     //     return NodeStatus::Failure;
     if (PaStar->mPath)
@@ -277,6 +277,7 @@ void BT_BOSS::FollowPath()
     FVector direction = FVector(NextPos.x - currentPos.x, mFloorHeight - currentPos.y, NextPos.z - currentPos.z);
     if (PaStar->mPath->turnBoundaries.at(PaStar->mPathIdx)->HasCrossedLine(Path::V3ToV2(currentPos)))
     {
+        mFloorType = PaStar->mPath->lookPoints.at(PaStar->mPathIdx)->OwnerFloor;
         PaStar->mPathIdx++;
         // mIsPosUpdated = true;
     }
@@ -295,11 +296,11 @@ void BT_BOSS::FollowPath()
         // resultPos.y = mFloorHeight;
         mOwnerActor->SetWorldLocation(resultPos);
         
-        // auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
-        // G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
-        // G_DebugBatch.DrawRay_Implement(currentPos, 100 * velocity
-        //     , false, Colors::BlueViolet);
-        // G_DebugBatch.PostRender();
+        auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
+        G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
+        G_DebugBatch.DrawRay_Implement(currentPos, 100 * velocity
+            , false, Colors::BlueViolet);
+        G_DebugBatch.PostRender();
         
     }
 }
@@ -447,11 +448,11 @@ void BT_BOSS::SetupTree2()
 {
     BTRoot = builder
             .CreateRoot<Selector>()
-                .AddDecorator(LAMBDA(IsPressedKey, EKeyCode::Space))
-                    .AddActionNode(LAMBDA(JumpAttack))
-                .EndBranch()
+                // .AddDecorator(LAMBDA(IsPressedKey, EKeyCode::Space))
+                //     .AddActionNode(LAMBDA(JumpAttack))
+                // .EndBranch()
                 .AddSequence("")
-                    .AddActionNode(LAMBDA(IsPressedKey, EKeyCode::V))
+                    .AddActionNode(LAMBDA(IsPressedKey, EKeyCode::Space))
                     .AddActionNode(LAMBDA(ChasePlayer, 0))
                     .AddActionNode(LAMBDA(Attack))
                 .EndBranch()
