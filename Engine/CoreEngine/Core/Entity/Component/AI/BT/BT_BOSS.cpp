@@ -17,7 +17,7 @@ BT_BOSS::BT_BOSS(JTextView InName, int Index): JActorComponent(InName)
     mIdx = Index;
     mInputKeyboard.Initialize();
     PaStar = MakePtr<AStar>();
-    SetupTree2();
+    // SetupTree2();
 }
 
 BT_BOSS::~BT_BOSS(){}
@@ -36,7 +36,7 @@ void BT_BOSS::Tick(float DeltaTime)
     mDeltaTime = DeltaTime;
     JSceneComponent* Collider = mOwnerActor->GetChildSceneComponentByName("123123");
     mFloorHeight = static_cast<JBoxComponent*>(Collider)->GroundHeight;
-    BTRoot->tick();
+    // BTRoot->tick();
 }
 
 void BT_BOSS::BBTick()

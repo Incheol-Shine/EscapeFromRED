@@ -86,34 +86,34 @@ void NavTest::Update(float DeltaTime)
 
 void NavTest::Render()
 {
-    auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
-    G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
-    {
-        G_DebugBatch.DrawGrid_Implement(
-            {NodeScale.x, 0, 0},
-            {0, 0, NodeScale.y},
-            GridCenter,
-            GridDivs.x,
-            GridDivs.y,
-            Colors::Gray
-        );
-        DrawNode(GridFromWorldPoint(PlayerPos), Colors::Cyan);
-        // DrawUnWalkable(FirstFloorObstacle);
-        DrawUnWalkable(SecondFloorObstacle);
-        // for (auto grid : tempPath)
-        // {
-        //     DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Cyan);
-        // }
-        
-        /*DrawNode(GridFromWorldPoint(WorldPosFromGridPos(0, 1)), Colors::Pink);
-        DrawNode(GridFromWorldPoint(WorldPosFromGridPos(0, 2)), Colors::Pink);
-        DrawNode(GridFromWorldPoint(WorldPosFromGridPos(1, 5)), Colors::Pink);
-        
-        DrawNode(mGridGraph[0][0]->GridPos, Colors::Pink);
-        DrawNode(mGridGraph[0][1]->GridPos, Colors::Pink);
-        DrawNode(mGridGraph[0][2]->GridPos, Colors::Pink);*/
-    }
-    G_DebugBatch.PostRender();
+    // auto* cam = GetWorld.CameraManager->GetCurrentMainCam();
+    // G_DebugBatch.PreRender(cam->GetViewMatrix(), cam->GetProjMatrix());
+    // {
+    //     G_DebugBatch.DrawGrid_Implement(
+    //         {NodeScale.x, 0, 0},
+    //         {0, 0, NodeScale.y},
+    //         GridCenter,
+    //         GridDivs.x,
+    //         GridDivs.y,
+    //         Colors::Gray
+    //     );
+    //     DrawNode(GridFromWorldPoint(PlayerPos), Colors::Cyan);
+    //     // DrawUnWalkable(FirstFloorObstacle);
+    //     DrawUnWalkable(SecondFloorObstacle);
+    //     // for (auto grid : tempPath)
+    //     // {
+    //     //     DrawNode(FVector2(grid->GridX, grid->GridY), Colors::Cyan);
+    //     // }
+    //     
+    //     /*DrawNode(GridFromWorldPoint(WorldPosFromGridPos(0, 1)), Colors::Pink);
+    //     DrawNode(GridFromWorldPoint(WorldPosFromGridPos(0, 2)), Colors::Pink);
+    //     DrawNode(GridFromWorldPoint(WorldPosFromGridPos(1, 5)), Colors::Pink);
+    //     
+    //     DrawNode(mGridGraph[0][0]->GridPos, Colors::Pink);
+    //     DrawNode(mGridGraph[0][1]->GridPos, Colors::Pink);
+    //     DrawNode(mGridGraph[0][2]->GridPos, Colors::Pink);*/
+    // }
+    // G_DebugBatch.PostRender();
 }
 
 void NavTest::Release()
